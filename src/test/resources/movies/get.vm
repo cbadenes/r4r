@@ -1,0 +1,13 @@
+{
+    "movies" : [
+        #foreach( $movie in $resultList )
+         {
+            "uri" : "$movie.val1",
+            "name" : "$movie.val2"
+         }
+         #if ( $velocityCount < ${resultList.size()} )
+            ,
+         #end
+        #end
+    ]
+}

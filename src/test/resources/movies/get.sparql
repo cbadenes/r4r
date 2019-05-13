@@ -1,0 +1,11 @@
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX res: <http://dbpedia.org/resource/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT DISTINCT ( ?uri AS ?val1 ) ( ?string AS ?val2 )
+WHERE {
+	?uri rdf:type dbo:Film .
+        ?uri dbo:starring res:Julia_Roberts .
+        ?uri dbo:starring res:Richard_Gere.
+	OPTIONAL {?uri rdfs:label ?string . FILTER (lang(?string) = 'en') }
+}
