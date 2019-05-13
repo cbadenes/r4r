@@ -1,2 +1,2 @@
 # r4r
-Restful API for RDF
+Restful API for RDF data
