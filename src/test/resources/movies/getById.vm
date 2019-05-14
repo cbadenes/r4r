@@ -1,0 +1,5 @@
+{
+    "director" : "$director",
+    "country" : "$country",
+    "language" : "$language"
+}
