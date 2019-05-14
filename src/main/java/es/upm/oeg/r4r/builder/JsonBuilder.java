@@ -7,6 +7,7 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -26,58 +27,82 @@ public class JsonBuilder {
 
     private VelocityEngine velocityEngine;
 
+    @Value("#{environment['RESOURCE_FOLDER']?:'${resource.folder}'}")
+    String resourceFolder;
+
     @PostConstruct
     public void setup(){
         // Velocity Template
         velocityEngine = new VelocityEngine();
-        velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
-        velocityEngine.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
+
+        // classpath
+//        velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, "classpath");
+//        velocityEngine.setProperty("classpath.resource.loader.class", ClasspathResourceLoader.class.getName());
+
+        velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, "file");
+
+        String basePath = new File(resourceFolder).getAbsolutePath();
+        LOG.info("Json Template Path set to: " + basePath);
+        velocityEngine.setProperty("file.resource.loader.path", basePath);
+        velocityEngine.setProperty("file.resource.loader.cache", false);
+        velocityEngine.setProperty("file.resource.loader.modificationCheckInterval", "2");
+
         velocityEngine.init();
     }
 
     // resource list
     public String compose(String resource, List<Map<String,String>> mapResults) throws IOException {
+        return get(resource, mapResults);
+    }
+
+    // resource detail
+    public String compose(String resource, Map<String,String> mapResult) throws IOException {
+        return getById(resource, mapResult);
+    }
+
+    // inner resource list
+    public String compose(String baseResource, String innerResource, List<Map<String,String>> mapResults) throws IOException {
+        String resource = baseResource + File.separator + innerResource;
+        return get(resource, mapResults);
+    }
+
+    // inner resource detail
+    public String compose(String baseResource, String innerResource, Map<String,String> mapResult) throws IOException {
+        String resource = baseResource + File.separator + innerResource;
+        return getById(resource, mapResult);
+    }
+
+    private String get(String resource, List<Map<String,String>> mapResults){
         Template t = velocityEngine.getTemplate(resource + File.separator + "get.vm");
 
         VelocityContext context = new VelocityContext();
 
         context.put("resultList", mapResults);
 
-        StringWriter fw = new StringWriter();
-        t.merge(context, fw);
-        fw.close();
-
-        return fw.toString();
+        return merge(t, context);
     }
 
-    // resource detail
-    public String compose(String resource, Map<String,String> mapResult) throws IOException {
+    private String getById(String resource, Map<String,String> mapResult){
         Template t = velocityEngine.getTemplate(resource + File.separator + "getById.vm");
 
         VelocityContext context = new VelocityContext();
 
         mapResult.entrySet().forEach(entry -> context.put(entry.getKey(), entry.getValue()));
 
-        StringWriter fw = new StringWriter();
-        t.merge(context, fw);
-        fw.close();
-
-        return fw.toString();
+        return merge(t, context);
     }
 
-    // resource inner list
-    public String compose(String baseResource, String innerResource, List<Map<String,String>> mapResults) throws IOException {
-        Template t = velocityEngine.getTemplate(baseResource + File.separator + innerResource + "get.vm");
 
-        VelocityContext context = new VelocityContext();
-
-        context.put("resultList", mapResults);
-
-        StringWriter fw = new StringWriter();
-        t.merge(context, fw);
-        fw.close();
-
-        return fw.toString();
+    private String merge(Template t, VelocityContext context){
+        try {
+            StringWriter fw = new StringWriter();
+            t.merge(context, fw);
+            fw.close();
+            return fw.toString();
+        } catch (Exception e) {
+            LOG.warn("Unexpected error parsing json template",e);
+            return "{}";
+        }
     }
 
 }

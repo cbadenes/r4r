@@ -10,11 +10,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 /**
  * @author Badenes Olmedo, Carlos <cbadenes@fi.upm.es>
@@ -33,59 +35,43 @@ public class SparqlClient {
     @Value("#{environment['RESOURCE_FOLDER']?:'${resource.folder}'}")
     String resourceFolder;
 
+    private String resourceUri;
+
+    @PostConstruct
+    public void setup(){
+        resourceUri = sparqlDomain.endsWith("/")? sparqlDomain : sparqlDomain + "/";
+    }
+
     public ResultSet query(String resource) throws IOException {
-        // Sparql Query
-        Path queryPath = Paths.get("src",resourceFolder,"resources", resource, "get.sparql");
 
-        String query = new String (Files.readAllBytes(queryPath), Charset.forName("UTF-8"));
-
-        ParameterizedSparqlString qs = new ParameterizedSparqlString(query);
-
-//        Literal london = ResourceFactory.createLangLiteral( "London", "en" );
-//        qs.setParam( "label", london );
-
-        LOG.info("Input Query:\n"  + qs );
-
-        QueryExecution exec = QueryExecutionFactory.sparqlService( sparqlEndpoint, qs.asQuery() );
-
-        ResultSet results = exec.execSelect();
-
-        return results;
+        Path queryPath = Paths.get(resourceFolder, resource, "get.sparql");
+        return query(queryPath, Optional.empty());
     }
 
     public ResultSet query(String resource, String id) throws IOException {
-        // Sparql Query
-        Path queryPath = Paths.get("src",resourceFolder,"resources", resource, "getById.sparql");
 
-        String query = new String (Files.readAllBytes(queryPath), Charset.forName("UTF-8"));
-
-        ParameterizedSparqlString qs = new ParameterizedSparqlString(query);
-
-        String domainURI = sparqlDomain.endsWith("/")?sparqlDomain : sparqlDomain+"/";
-        Resource idResource = ResourceFactory.createResource(domainURI+id);
-        qs.setParam( "id", idResource);
-
-        LOG.info("Input Query:\n"  + qs );
-
-        QueryExecution exec = QueryExecutionFactory.sparqlService( sparqlEndpoint, qs.asQuery() );
-
-        ResultSet results = exec.execSelect();
-
-        return results;
+        Path queryPath = Paths.get(resourceFolder, resource, "getById.sparql");
+        return query(queryPath, Optional.of(id));
     }
 
-    public ResultSet query(String baseResource, String id, String innerResource) throws IOException {
-        // Sparql Query
-        Path queryPath = Paths.get("src",resourceFolder,"resources", baseResource, innerResource, "get.sparql");
+    public ResultSet query(String resource, String id, String innerResource) throws IOException {
 
-        String query = new String (Files.readAllBytes(queryPath), Charset.forName("UTF-8"));
+        Path queryPath = Paths.get(resourceFolder, resource, innerResource, "get.sparql");
+        return query(queryPath, Optional.of(id));
+    }
+
+
+    private ResultSet query(Path path, Optional<String> id) throws IOException {
+        String query = new String (Files.readAllBytes(path), Charset.forName("UTF-8"));
 
         ParameterizedSparqlString qs = new ParameterizedSparqlString(query);
 
-        Literal idLiteral = ResourceFactory.createStringLiteral(id);
-        qs.setParam( "id", idLiteral);
+        if (id.isPresent()){
+            Resource idLiteral = ResourceFactory.createResource(resourceUri+id.get());
+            qs.setParam( "id", idLiteral);
+        }
 
-        LOG.info("Input Query:\n"  + qs );
+        LOG.debug("Input Query:\n"  + qs );
 
         QueryExecution exec = QueryExecutionFactory.sparqlService( sparqlEndpoint, qs.asQuery() );
 

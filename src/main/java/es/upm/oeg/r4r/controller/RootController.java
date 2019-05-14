@@ -52,8 +52,12 @@ public class RootController {
 
         String[] resources = StringUtils.split(uri, "/");
 
+        if (resources.length == 0){
+            return new ResponseEntity<String>("Welcome to R4R ;)", HttpStatus.ACCEPTED);
+        }
+
         if (resources.length > 3) {
-            LOG.warn("Max Depth allowed is 3. Request is: '" + uri +"'");
+            LOG.warn("Request exceeds max depth allowed (3), it is: '" + uri +"'");
             return new ResponseEntity<String>("bad-request", HttpStatus.BAD_REQUEST);
         }
 
@@ -84,6 +88,8 @@ public class RootController {
 
                 mapResults.add(mapResult);
             }
+
+            if (mapResults.isEmpty()) return new ResponseEntity<String>("{}",HttpStatus.OK);
 
             String json;
             if (resources.length == 1){
