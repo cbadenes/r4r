@@ -1,4 +1,5 @@
 {
+    "uri" : "$uri",
     "director" : "$director",
     "country" : "$country",
     "language" : "$language"
