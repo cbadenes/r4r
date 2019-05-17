@@ -1,0 +1,21 @@
+[
+    #foreach( $movie in $results )
+        #set ( $index = $movie.uri.lastIndexOf("/") )
+        #set ( $index = $index + 1)
+        #set ( $id = $movie.uri.substring($index, $movie.uri.length()))
+        {
+            "uri" : "$movie.uri",
+            "id"  : "$id",
+            #if ($movie.bonus)
+            "bonus": "$movie.bonus",
+            #end
+            #if ($movie.bonus)
+            "budget" : $movie.budget,
+            #end
+            "name" : "$movie.name"
+         }
+         #if ( $velocityCount < ${results.size()} )
+            ,
+         #end
+    #end
+]

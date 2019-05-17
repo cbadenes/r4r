@@ -1,12 +1,12 @@
 {
     "starring" : [
-        #foreach( $person in $resultList )
+        #foreach( $person in $results )
          {
             "uri" : "$person.uri",
             "name" : "$person.name",
             "gender" : "$person.gender"
          }
-         #if ( $velocityCount < ${resultList.size()} )
+         #if ( $velocityCount < ${results.size()} )
             ,
          #end
         #end

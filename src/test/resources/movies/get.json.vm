@@ -1,0 +1,16 @@
+[
+    #foreach( $movie in $results )
+        {
+            "uri" : "$movie.uri",
+            "name" : "$movie.name",
+            "language" : "$movie.language",
+            #if($movie.distributor)
+            "distributor" : "$movie.distributor",
+            #end
+            "budget" : $movie.budget
+         }
+         #if ( $velocityCount < ${results.size()} )
+            ,
+         #end
+    #end
+]

@@ -62,9 +62,11 @@
         <surefire.junit.version>2.12</surefire.junit.version>
 
         <commons-lang.version>3.5</commons-lang.version>
+        <guava.version>27.1-jre</guava.version>
         <jena.version>3.11.0</jena.version>
         <junit.version>4.12</junit.version>
         <logback.version>1.1.3</logback.version>
+        <springfox.version>2.9.2</springfox.version><!-- 2.7.0 -->
         <velocity.version>1.7</velocity.version>
         <velocity.tool.version>2.0</velocity.tool.version>
     </properties>
@@ -86,6 +88,17 @@
                 <version>${jena.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger2</artifactId>
+                <version>${springfox.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger-ui</artifactId>
+                <version>${springfox.version}</version>
+            </dependency>
+
             <!-- Velocity -->
             <dependency>
                 <groupId>org.apache.velocity</groupId>
@@ -96,6 +109,13 @@
                 <groupId>org.apache.velocity</groupId>
                 <artifactId>velocity-tools</artifactId>
                 <version>${velocity.tool.version}</version>
+            </dependency>
+
+            <!-- Google Guava -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
 
 
@@ -136,6 +156,21 @@
             <artifactId>jena-arq</artifactId>
         </dependency>
 
+        <!-- Google Guava -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+        </dependency>
+
         <!-- Velocity -->
         <dependency>
             <groupId>org.apache.velocity</groupId>
@@ -156,6 +191,11 @@
                     <artifactId>servlet-api</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <!-- Spring -->
@@ -198,6 +238,7 @@
     </dependencies>
 
     <build>
+        <finalName>r4r</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -217,6 +258,53 @@
                     <source>${project.java.version}</source>
                     <target>${project.java.version}</target>
                     <compilerVersion>${project.java.version}</compilerVersion>
+                </configuration>
+            </plugin>
+
+            <!-- Maven Test Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.11</version>
+                <configuration>
+                    <excludes>
+                        <exclude>%regex[.*IntTest.*]</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <!-- Spring-Boot Unique Jar -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- Docker Plugin -->
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.4.11</version>
+                <configuration>
+                    <imageName>cbadenes/r4r</imageName>
+                    <serverId>dockerhub</serverId>
+                    <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                        <resource>
+                            <targetPath>/bin</targetPath>
+                            <directory>${project.basedir}/src/main/bin</directory>
+                            <include>**</include>
+                        </resource>
+                    </resources>
+                    <forceTags>true</forceTags>
+                    <imageTags>
+                        <imageTag>${project.version}</imageTag>
+                        <imageTag>latest</imageTag>
+                    </imageTags>
                 </configuration>
             </plugin>
             

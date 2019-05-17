@@ -1,0 +1,10 @@
+[
+    #foreach( $lang in $results )
+     {
+        "language" : "$lang.language"
+     }
+     #if ( $velocityCount < ${results.size()} )
+        ,
+     #end
+    #end
+]
