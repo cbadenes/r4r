@@ -3,11 +3,15 @@ package es.upm.oeg.r4r.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.servlet.view.InternalResourceView;
+import org.springframework.web.servlet.view.UrlBasedViewResolver;
 
 import java.io.File;
 
@@ -34,18 +38,17 @@ public class BaseConfig extends WebMvcConfigurationSupport {
         if (!file.exists()) return;
 
         registry
-                .addResourceHandler("**")
-                //.addResourceLocations("classpath:/dist/");
-                .addResourceLocations("file:"+file.getAbsolutePath()+"/html/");
+                .addResourceHandler("/doc/**")
+                .addResourceLocations("file:"+file.getAbsolutePath()+"/doc/");
+        super.addResourceHandlers(registry);
 
-//        registry.addResourceHandler("/webjars/**")
-//                .addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
-//    @Override
-//    public void addViewControllers(ViewControllerRegistry registry) {
-//        registry.addViewController("/").setViewName("forward:/index.html");
-//        registry.addViewController("/index.html");
-//    }
+    @Bean
+    public ViewResolver viewResolver() {
+        UrlBasedViewResolver viewResolver = new UrlBasedViewResolver();
+        viewResolver.setViewClass(InternalResourceView.class);
+        return viewResolver;
+    }
 
 }

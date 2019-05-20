@@ -33,9 +33,6 @@ public class CustomWebServer implements EmbeddedServletContainerCustomizer{
                 connector.setAttribute("maxThreads",newThreads);
                 LOG.info("Changed Tomcat connector maxThreads from " + defaultMaxThreads + " to  " + newThreads);
             });
-
-
-
         }
     }
 }

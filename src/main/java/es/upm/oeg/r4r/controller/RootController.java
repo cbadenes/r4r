@@ -7,14 +7,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.config.ResourceNotFoundException;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 @RestController
@@ -29,6 +33,33 @@ public class RootController {
     @Value("#{environment['SERVER_PATH']?:'${server.path}'}")
     String basePath;
 
+    @Value("#{environment['RESOURCE_FOLDER']?:'${resource.folder}'}")
+    String resourceFolder;
+
+    @GetMapping(value = {"/doc/*"}, produces = MediaType.TEXT_HTML_VALUE)
+    @ResponseBody
+    public ResponseEntity doc(HttpServletRequest req) throws IOException {
+        String uri = req.getRequestURI();
+
+        LOG.info("Request by URI: " + uri );
+
+        String resource = StringUtils.substringAfter(uri, "/doc/");
+
+        Path path = Paths.get(resourceFolder, "doc", resource);
+        File file = path.toFile();
+
+        InputStream inputStream;
+        if (!file.exists() || file.isDirectory()){
+             inputStream = new ByteArrayInputStream("Hi from R4R!!".getBytes());
+        }else{
+            inputStream = new FileInputStream(file);
+        }
+        return ResponseEntity.ok(new InputStreamResource(inputStream));
+    }
+
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     @RequestMapping(value="**",method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<String> get(HttpServletRequest req){
         LOG.debug("Root Controller: " + req);
@@ -57,8 +88,9 @@ public class RootController {
         }catch (IOException e){
             return new ResponseEntity<>("resource-not-found", HttpStatus.NOT_FOUND);
         }catch (Exception e){
-            LOG.error("Unexpected error", e);
+            LOG.error(e.getMessage());
             return new ResponseEntity<>("internal-error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 }

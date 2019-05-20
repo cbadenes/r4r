@@ -7,10 +7,6 @@
 
                          Rest API for RDF data
 
-                            cbadenes@fi.upm.es
-                              fyedro@fi.upm.es
-                             ocorcho@fi.upm.es
-
                         Ontology Engineering Group
                     Universidad Politecnica de Madrid
                                   2019

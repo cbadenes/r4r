@@ -17,24 +17,32 @@ docker run -it --rm  \
 
 The `-v` parameter sets a local folder where the resources that are published in the API are defined. 
 
-The `-p` parameter defines the port where the service will be listening. In this case we've set 8080, so let's go to [http://localhost:8181/](http://localhost:8080/) from a web browser and see a welcome message like this: 
+The `-p` parameter defines the port where the service will be listening. In this case we've set 8080, so let's go to [http://localhost:8080/](http://localhost:8080/) from a web browser and see a welcome message like this: 
+
+The `-e` parameters will be seen below.
 
 ```
   Welcome to R4R ;)
   
 ```
 
+A folder named `resources` should have been created in the same directory where you launched the container. This folder will contain the definition of the resources that will be published through the API.
+
+In order to continue with the following steps, it is recommended to use a text editor such as [Atom](https://atom.io) ( with [velocity](https://atom.io/packages/atom-language-velocity), [json](https://atom.io/packages/pretty-json) and [sparql](https://atom.io/packages/language-sparql) plugins), to easily handle JSON and Sparql files.
+
 ## Static Resources
 
-Creates a file  named `get.json.vm` in folder `resources/movies` with the following contents:
+Creates the file `resources/movies/get.json.vm` to handle a HTTP_GET request by providing the following content:
 
 ```json
 [
  {
-   "name":"movie1"
+   "name":"movie1",
+   "uri" : "uri1"
  },
  {
-    "name":"movie2"
+    "name":"movie2",
+    "uri" : "uri2"
  }
 ]
 
@@ -46,9 +54,10 @@ You have easily created a MOCK server!
 
 ## Dynamic Resources
 
-The `-e` parameters set the endpoint (`SPARQL_ENDPOINT`) and namespace (`RESOURCE_NAMESPACE`) where the resources to be published in the service are hosted. 
+The `-e` parameters set the endpoint (`SPARQL_ENDPOINT`) and namespace (`RESOURCE_NAMESPACE`) where the service retrieves the data through Sparql queries.
+  
+To retrieve data from a HTTP_GET request, simply create the file `resources/movies/get.sparql` with the following content:
 
-The service retrieves the data through a Sparql query described in file `get.sparql` located in `resources/movies`, like this one:
 
 ```
 PREFIX dbo: <http://dbpedia.org/ontology/>
@@ -57,11 +66,11 @@ PREFIX res: <http://dbpedia.org/resource/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-SELECT DISTINCT ?uri ?name ?budget
+SELECT ?m_uri ?m_name
 WHERE {
-    ?uri rdf:type dbo:Film .
-    OPTIONAL { ?uri dbo:budget ?budget } .
-    OPTIONAL { ?uri foaf:name ?name . FILTER (lang(?name) = 'en') } .    
+    ?m_uri rdf:type dbo:Film ;        
+        foaf:name ?m_name .
+    FILTER (lang(?m_name) = 'en') .    
 }
 ```
 
@@ -73,28 +82,39 @@ How? Easily, we can edit the file `get.json.vm` to use the sparql query response
 [
     #foreach( $movie in $results )
         {
-            "uri" : "$movie.uri",
-            "name" : "$movie.name",        
-            "budget" : $movie.budget
+            "uri" : "$movie.m_uri",
+            "name" : "$movie.m_name"
          }
          #if ( $velocityCount < ${results.size()} )
             ,
          #end
     #end
 ]
-
-
 ```
 
-A new variable named `results` is available from this template. It has all values retrieved in the sparql query. We can iterate on this variable to create a list of movies with three fields: `uri` , `name` and `budget`.
+A new variable named `results` is always available from this template. It has all values retrieved in the sparql query so can be iterated to create a list of resources. In our example, a list of movies is create with three fields: `uri` , `name` and `budget`.
 
-Now a json message with a list of ten movies is returned by doing the request [http://localhost:8080/movies](http://localhost:8080/movies)
+Now, a different json message is returned by doing the request [http://localhost:8080/movies](http://localhost:8080/movies)
+
+## Paginated Query
+
+R4R allows you to make paginated queries by simply adding the query param `size` and `offset` since they are special variables. 
+
+If we want the list of only 5 films, it will be enough to request it this way: [http://localhost:8080/movies?size=5](http://localhost:8080/movies?size=5)
+ 
+and if we want the next page, enough with:  [http://localhost:8080/movies?size=5&offset=1](http://localhost:8080/movies?size=5&offset=1)
+
+When considering paginated queries it is necessary to set the `ORDER` option in the Sparql query.
+
+
+
+
 
 ## Optional fields
 
 Some fields may not always be available. For example, the `bonusTracks` field is accessible only in some movies. 
 
-Let's set it into the sparql query (`resources/movies/get.sparql`):
+Let's set it into the sparql query (`resources/movies/get.sparql`) by:
 
 ```
 PREFIX dbo: <http://dbpedia.org/ontology/>
@@ -103,14 +123,13 @@ PREFIX res: <http://dbpedia.org/resource/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-SELECT DISTINCT ?uri ?name ?budget ?bonus
+SELECT ?m_uri ?m_name ?m_bonus
 WHERE {
-    ?uri rdf:type dbo:Film .
-    OPTIONAL { ?uri dbo:budget ?budget } .
-    OPTIONAL { ?uri dbp:bonusTracks ?bonus } .
-    OPTIONAL { ?uri foaf:name ?name . FILTER (lang(?name) = 'en') } .
+    ?m_uri rdf:type dbo:Film ;
+        foaf:name ?m_name .
+    FILTER (lang(?m_name) = 'en') .
+    OPTIONAL { ?m_uri dbp:bonusTracks ?m_bonus } .
 }
-
 ```
 
 And we also load it into the JSON template (`resources/movies/get.json.vm`)to handle this conditional value:
@@ -119,25 +138,52 @@ And we also load it into the JSON template (`resources/movies/get.json.vm`)to ha
 [
     #foreach( $movie in $results )
         {
-            "uri" : "$movie.uri",
-            #if ($movie.bonus)
-            "bonus": "$movie.bonus",
+            "uri" : "$movie.m_uri",
+            #if ($movie.m_bonus)
+             "bonus": "$movie.m_bonus",
             #end
-            #if ($movie.bonus)
-            "budget" : $movie.budget,
-            #end
-            "name" : "$movie.name"
+            "name" : "$movie.m_name"
          }
          #if ( $velocityCount < ${results.size()} )
             ,
          #end
     #end
 ]
-
-
 ```
 
 The returned json only includes the `bonus` field when it has value by doing a request to [http://localhost:8080/movies](http://localhost:8080/movies).
+
+## Dynamic Fields
+
+New fields can easily be generated without the need to request new information. 
+
+These fields are created from existing information, for example to indicate the **ID** of a resource from its URI.
+
+It would be enough to add the necessary operations in the JSON generation template (`resources/movies/get.json.vm`) as follows:
+
+```
+[
+    #foreach( $movie in $results )
+        #set ( $index = $movie.m_uri.lastIndexOf("/") )
+        #set ( $index = $index + 1)
+        #set ( $id = $movie.m_uri.substring($index, $movie.m_uri.length()))
+        {
+            "uri" : "$movie.m_uri",
+            "id"  : "$id",
+            #if ($movie.m_bonus)
+             "bonus": "$movie.m_bonus",
+            #end
+            "name" : "$movie.m_name"
+         }
+         #if ( $velocityCount < ${results.size()} )
+            ,
+         #end
+    #end
+]
+```
+
+
+These fields are available at: [http://localhost:8080/movies](http://localhost:8080/movies)
 
 ## Query Parameters
 
@@ -150,21 +196,19 @@ PREFIX res: <http://dbpedia.org/resource/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-SELECT DISTINCT ?uri ?name ?budget ?bonus
+SELECT ?m_uri ?m_name ?m_bonus
 WHERE {
-    ?uri rdf:type dbo:Film .
-    OPTIONAL { ?uri dbo:budget ?budget } .
-    OPTIONAL { ?uri dbp:bonusTracks ?bonus } .
-    OPTIONAL { ?uri foaf:name ?name . FILTER (lang(?name) = 'en') } .
-    FILTER ( regex(?name, ?title, "i") || isLiteral(?title) = False ) .
+    ?m_uri rdf:type dbo:Film ;
+        foaf:name ?m_name .
+    FILTER (lang(?m_name) = 'en') .
+    OPTIONAL { ?m_uri dbp:bonusTracks ?m_bonus } .
+    FILTER ( regex(?m_name, ?name, "i") || isLiteral(?name) = False ) .
 }
-
 ```
 
+Now you can make requests like this: [http://localhost:8080/movies?name=Games](http://localhost:8080/movies?name=Games)
 
-Now you can make requests like this: [http://localhost:8080/movies?title=WarGames](http://localhost:8080/movies?title=WarGames)
-
-Be careful when naming variables, because if you use the same name in the query field as the variable returned in the sparql query an error will occur (e.g. `name`).
+Be careful when naming variables, because if you use the same name in the query field as the variable returned in the sparql query an error will occur.
 
 ## Query Path
 
@@ -179,12 +223,15 @@ PREFIX res: <http://dbpedia.org/resource/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-SELECT ?director ?country ( ?id AS ?uri )
+SELECT ( ?id AS ?m_uri ) ?d_name ?m_country ?m_name ?m_abstract ?m_budget ?m_released
 WHERE {
-	?id dbo:director ?duri .
-	?duri foaf:name ?director .
-	?id dbp:country ?country .
-	?id dbp:language ?language .
+	?id dbo:director ?d_uri .
+	?d_uri foaf:name ?d_name .
+	OPTIONAL {?id dbp:country ?m_country} .
+	OPTIONAL {?id dbo:budget ?m_budget} .
+	OPTIONAL {?id foaf:name ?m_name} .
+	OPTIONAL {?id dbp:released ?m_released} .
+	OPTIONAL {?id dbo:abstract ?m_abstract . FILTER (lang(?m_abstract) = 'en')} .
 }
 ```
 
@@ -193,59 +240,38 @@ And the `resources/movies/getById.json.vm` with this content:
 
 ```
 {
-    "uri" : "$uri",
-    "director" : "$director",
-    "country" : "$country"
+    "uri" : "$m_uri",
+    "director" : "$d_name",
+    #if ($m_country)
+      "country" : "$m_country",
+    #end
+    #if ($m_wiki)
+      "wiki" : "$m_wiki",
+    #end
+    #if ($m_abstract)
+      "abstract" : "$m_abstract",
+    #end
+    #if ($m_budget)
+      "budget" : "$m_budget",
+    #end
+    #if ($m_released)
+      "released" : "$m_released",
+    #end
+    "title": "$m_name"
 }
+
 ```
 
 Now, you can get details about a movie by: [http://localhost:8080/movies/WarGames](http://localhost:8080/movies/WarGames)
 
 
-## Dynamic Fields
+## Related Resources
 
-New fields can easily be generated without the need to request new information. 
-
-These fields are created from existing information, for example to indicate the **ID** of a resource from its URI.
-
-It would be enough to add the necessary operations in the JSON generation template (`resources/movies/get.json.vm`) , such as these:
-
-```
-[
-    #foreach( $movie in $results )
-        #set ( $index = $movie.uri.lastIndexOf("/") )
-        #set ( $index = $index + 1)
-        #set ( $id = $movie.uri.substring($index, $movie.uri.length()))
-        {
-            "uri" : "$movie.uri",
-            "id"  : "$id",
-            #if ($movie.bonus)
-            "bonus": "$movie.bonus",
-            #end
-            #if ($movie.bonus)
-            "budget" : $movie.budget,
-            #end
-            "name" : "$movie.name"
-         }
-         #if ( $velocityCount < ${results.size()} )
-            ,
-         #end
-    #end
-]
-
-```
-
-
-These fields are available at: [http://localhost:8080/movies](http://localhost:8080/movies)
-
-
-## Inner Resources
-
-To request resources from a given one, simply add a subfolder with the template files. 
+To request resources from a given one, simply add a **subfolder** with the template files. 
  
-For instance, to get the actors and actresses protagonists of a film it is enough to create the following files: 
+For instance, to get the list of starring characters in the film it is enough to create the following files: 
  
-- `resources/movies/roles/get.sparql`: 
+- `resources/movies/characters/get.sparql`: 
 
 ```
 PREFIX dbo: <http://dbpedia.org/ontology/>
@@ -264,7 +290,7 @@ WHERE {
 }
 ```
 
-- `resources/movies/roles/get.json.vm`:
+- `resources/movies/characters/get.json.vm`:
  
 ```
 [
@@ -281,14 +307,111 @@ WHERE {
 ]
 ```
 
-Then that list can be obtained by [http://localhost:8080/movies/WarGames/roles](http://localhost:8080/movies/WarGames/roles)
+That list can then be obtained by [http://localhost:8080/movies/WarGames/characters](http://localhost:8080/movies/WarGames/characters)
 
 
-## Paginated Query
+## Documentation
 
-R4R allows you to make paginated queries by simply adding the query param `size` and `offset`. They are special variables. 
+Static HTML can be used to document API Rest. All files in `resources/doc` folder are available from a browser. 
 
+A Swagger interface can be created by describing our services in a YAML file, as follows:
 
-If we want the list of only 5 films, it will be enough to request it this way: [http://localhost:8080/movies?size=5](http://localhost:8080/movies?size=5)
- 
-and if we want the next page, enough with:  [http://localhost:8080/movies?size=5&offset=1](http://localhost:8080/movies?size=5&offset=1)
+```yaml
+swagger: '2.0'
+info:
+  description: API documentation.
+  version: 1.0.0
+  title: Swagger DBpedia Movies
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: cbadenes@fi.upm.es
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+host: localhost:8080
+basePath: /
+schemes:
+  - http
+paths:
+  '/movies':
+    get:
+      summary: Gets a list of movies
+      operationId: getMovies
+      parameters:
+        - name: size
+          in: query
+          description: number of movie to return
+          required: false
+          type: integer
+        - name: offset
+          in: query
+          description: page of movies to return
+          required: false
+          type: integer  
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                uri:
+                  type: string
+                id:
+                  type: string
+                bonus:
+                  type: string
+                name:
+                  type: string                  
+  '/movies/{id}':
+    get:
+      summary: Find movie by ID
+      description: Returns a single movie
+      operationId: getMovieById
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of movie to return
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Movie'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Movie not found
+definitions:
+  Movie:
+    type: object
+    required:
+      - uri
+      - director
+      - country
+    properties:
+      uri:
+        type: string
+      director:
+        type: string
+      title:
+        type: string
+      budget:
+        type: integer
+      country:
+        type: string
+      wiki:
+        type: string
+      abstract:
+        type: string
+      released:
+        type: string 
+```
+
+Then, a static html description can be created from that description in [swagger editor](http://editor.swagger.io/) by selecting `Generate Client > html2` option . 
+
+A new file (`index.html`) is created and would be placed into the `resources/doc` folder. In this way, our API is described in: [http://localhost:8080/doc/index.html](http://localhost:8080/doc/index.html).   

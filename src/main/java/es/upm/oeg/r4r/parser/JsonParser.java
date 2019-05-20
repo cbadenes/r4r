@@ -27,14 +27,14 @@ public class JsonParser {
     public String get(List<Map<String,String>> mapResults){
         try {
 
-            if (mapResults.isEmpty()) return "{}";
+//            if (mapResults.isEmpty()) return "{}";
 
             VelocityContext context = new VelocityContext();
 
 
             if (isList){
                 context.put("results", mapResults);
-            }else{
+            }else if (!mapResults.isEmpty()){
                 mapResults.get(0).entrySet().forEach(entry -> context.put(entry.getKey(), entry.getValue()));
             }
 
@@ -43,7 +43,7 @@ public class JsonParser {
             fw.close();
             return fw.toString();
         } catch (Exception e) {
-            LOG.warn("Unexpected error parsing json template",e);
+            LOG.warn(e.getMessage());
             return "{}";
         }
 
