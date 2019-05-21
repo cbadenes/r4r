@@ -312,7 +312,7 @@ That list can then be obtained by [http://localhost:8080/movies/WarGames/charact
 
 ## Security
 
-In order to secure access to resources a HTTP basic authentication per user can be defined by adding the `user:password` pairs in the environment variable `API_USERS`:
+A HTTP basic authentication can be defined by only adding a (list of) `user:password` pair(s) in the environment variable `API_USERS` as follows:
 
 ```
 docker run -it --rm  \
@@ -324,7 +324,7 @@ docker run -it --rm  \
     cbadenes/r4r:latest
 ```
 
-Now, to perform the request to [http://localhost:8080/movies](http://localhost:8080/movies) you must set the user name ( e.g `user1`) and the password (e.g `pwd1`) that have been defined in that environment variable. 
+Now, the request to [http://localhost:8080/movies](http://localhost:8080/movies) require a user name ( e.g `user1`) and a password (e.g `pwd1`) to be performed. These values have been defined in that environment variable. 
  
 ```sh
   curl -u user1:pwd1 http://localhost:8080/movies
