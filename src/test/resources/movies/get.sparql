@@ -12,4 +12,3 @@ WHERE {
     OPTIONAL { ?uri rdfs:label ?name . FILTER (lang(?name) = 'en') } .
     FILTER ( regex(?language, ?lang, "i") || isLiteral(?lang) = False ) .
 }
-LIMIT 50

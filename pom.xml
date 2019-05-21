@@ -171,6 +171,12 @@
             <artifactId>springfox-swagger-ui</artifactId>
         </dependency>
 
+        <!-- Spring Security -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
         <!-- Velocity -->
         <dependency>
             <groupId>org.apache.velocity</groupId>

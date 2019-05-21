@@ -1,4 +1,4 @@
-package es.upm.oeg.r4r.controller;
+package es.upm.oeg.r4r.data;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

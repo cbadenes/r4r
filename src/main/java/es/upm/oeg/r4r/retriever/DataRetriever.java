@@ -1,6 +1,6 @@
 package es.upm.oeg.r4r.retriever;
 
-import es.upm.oeg.r4r.controller.Request;
+import es.upm.oeg.r4r.data.Request;
 import org.apache.jena.query.ResultSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

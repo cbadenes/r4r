@@ -1,6 +1,6 @@
 package es.upm.oeg.r4r.parser;
 
-import es.upm.oeg.r4r.controller.Request;
+import es.upm.oeg.r4r.data.Request;
 import org.apache.velocity.Template;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;

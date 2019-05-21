@@ -310,6 +310,26 @@ WHERE {
 That list can then be obtained by [http://localhost:8080/movies/WarGames/characters](http://localhost:8080/movies/WarGames/characters)
 
 
+## Security
+
+In order to secure access to resources a HTTP basic authentication per user can be defined by adding the `user:password` pairs in the environment variable `API_USERS`:
+
+```
+docker run -it --rm  \
+    -p 8080:7777  \
+    -v "$(pwd)/resources:/resources" \
+    -e "SPARQL_ENDPOINT=http://dbpedia.org/sparql" \
+    -e "RESOURCE_NAMESPACE=http://dbpedia.org/resource/" \
+    -e "API_USERS=user1:pwd1;user2:pwd2" \
+    cbadenes/r4r:latest
+```
+
+Now, to perform the request to [http://localhost:8080/movies](http://localhost:8080/movies) you must set the user name ( e.g `user1`) and the password (e.g `pwd1`) that have been defined in that environment variable. 
+ 
+```sh
+  curl -u user1:pwd1 http://localhost:8080/movies
+``` 
+
 ## Documentation
 
 Static HTML can be used to document API Rest. All files in `resources/doc` folder are available from a browser. 
