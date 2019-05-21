@@ -76,7 +76,7 @@ WHERE {
 
 R4R allows query results (e.g. `uri`, `name` and `budget`) to be available in the json template. 
 
-How? Easily, we can edit the file `get.json.vm` to use the sparql query responses: 
+How? Easily, we can edit the file `get.json.vm` to use the sparql query responses using [Velocity Template Language](https://velocity.apache.org/engine/1.7/user-guide.html#velocity-template-language-vtl-an-introduction): 
 
 ```
 [
