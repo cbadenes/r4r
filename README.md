@@ -1,8 +1,8 @@
 # Restful-API for RDF data (r4r)
 
-If you have data described in [RDF](https://www.w3.org/TR/WD-rdf-syntax-971002/) format (e.g. a knowledge base or an ontology) and you want to publish them on the web following the REST principles via API over HTTP,  this is your site! 
+If you have data described in [RDF](https://www.w3.org/TR/WD-rdf-syntax-971002/) format (e.g. a knowledge base or an ontology) and you want to publish them on the web following the REST principles via API over HTTP,  this is your site!
 
-You only need [Docker](https://docs.docker.com/install/) installed in your system. 
+You only need [Docker](https://docs.docker.com/install/) installed in your system.
 
 Once Docker is installed, you should be able to run the R4R container by:
 
@@ -15,15 +15,15 @@ docker run -it --rm  \
     cbadenes/r4r:latest
 ```
 
-The `-v` parameter sets a local folder where the resources that are published in the API are defined. 
-
-The `-p` parameter defines the port where the service will be listening. In this case we've set 8080, so let's go to [http://localhost:8080/](http://localhost:8080/) from a web browser and see a welcome message like this: 
+The `-v` parameter sets a local folder where the resources that are published in the API are defined.
 
 The `-e` parameters will be seen below.
 
+The `-p` parameter defines the port where the service will be listening. In this case we've set 8080, so let's go to [http://localhost:8080/](http://localhost:8080/) from a web browser and see a welcome message like this:
+
 ```
   Welcome to R4R ;)
-  
+
 ```
 
 A folder named `resources` should have been created in the same directory where you launched the container. This folder will contain the definition of the resources that will be published through the API.
@@ -50,12 +50,12 @@ Creates the file `resources/movies/get.json.vm` to handle a HTTP_GET request by 
 
 The request to [http://localhost:8080/movies](http://localhost:8080/movies) returns that json.
 
-You have easily created a MOCK server! 
+You have easily created a MOCK server!
 
 ## Dynamic Resources
 
 The `-e` parameters set the endpoint (`SPARQL_ENDPOINT`) and namespace (`RESOURCE_NAMESPACE`) where the service retrieves the data through Sparql queries.
-  
+
 To retrieve data from a HTTP_GET request, simply create the file `resources/movies/get.sparql` with the following content:
 
 
@@ -74,9 +74,9 @@ WHERE {
 }
 ```
 
-R4R allows query results (e.g. `uri`, `name` and `budget`) to be available in the json template. 
+R4R allows query results (e.g. `m_uri` and `m_name`) to be available in the json template.
 
-How? Easily, we can edit the file `get.json.vm` to use the sparql query responses using [Velocity Template Language](https://velocity.apache.org/engine/1.7/user-guide.html#velocity-template-language-vtl-an-introduction): 
+How? Easily, we can edit the file `get.json.vm` to use the sparql query responses using [Velocity Template Language](https://velocity.apache.org/engine/1.7/user-guide.html#velocity-template-language-vtl-an-introduction):
 
 ```
 [
@@ -92,16 +92,16 @@ How? Easily, we can edit the file `get.json.vm` to use the sparql query response
 ]
 ```
 
-A new variable named `results` is always available from this template. It has all values retrieved in the sparql query so can be iterated to create a list of resources. In our example, a list of movies is create with three fields: `uri` , `name` and `budget`.
+A new variable named `results` is always available from this template. It has all values retrieved in the sparql query so can be iterated to create a list of resources. In our example, a list of movies is create with two fields: `uri` and `name`.
 
 Now, a different json message is returned by doing the request [http://localhost:8080/movies](http://localhost:8080/movies)
 
 ## Paginated Query
 
-R4R allows you to make paginated queries by simply adding the query param `size` and `offset` since they are special variables. 
+R4R allows you to make paginated queries by simply adding the query param `size` and `offset` since they are special variables.
 
 If we want the list of only 5 films, it will be enough to request it this way: [http://localhost:8080/movies?size=5](http://localhost:8080/movies?size=5)
- 
+
 and if we want the next page, enough with:  [http://localhost:8080/movies?size=5&offset=1](http://localhost:8080/movies?size=5&offset=1)
 
 When considering paginated queries it is necessary to set the `ORDER` option in the Sparql query.
@@ -112,7 +112,7 @@ When considering paginated queries it is necessary to set the `ORDER` option in 
 
 ## Optional fields
 
-Some fields may not always be available. For example, the `bonusTracks` field is accessible only in some movies. 
+Some fields may not always be available. For example, the `bonusTracks` field is accessible only in some movies.
 
 Let's set it into the sparql query (`resources/movies/get.sparql`) by:
 
@@ -155,7 +155,7 @@ The returned json only includes the `bonus` field when it has value by doing a r
 
 ## Dynamic Fields
 
-New fields can easily be generated without the need to request new information. 
+New fields can easily be generated without the need to request new information.
 
 These fields are created from existing information, for example to indicate the **ID** of a resource from its URI.
 
@@ -213,7 +213,7 @@ Be careful when naming variables, because if you use the same name in the query 
 ## Query Path
 
 In order to recover the information of a specific resource it is enough to add the following files:
- 
+
 The `resources/movies/getById.sparql` file with the following content:
 
 ```
@@ -267,11 +267,11 @@ Now, you can get details about a movie by: [http://localhost:8080/movies/WarGame
 
 ## Related Resources
 
-To request resources from a given one, simply add a **subfolder** with the template files. 
- 
-For instance, to get the list of starring characters in the film it is enough to create the following files: 
- 
-- `resources/movies/characters/get.sparql`: 
+To request resources from a given one, simply add a **subfolder** with the template files.
+
+For instance, to get the list of starring characters in the film it is enough to create the following files:
+
+- `resources/movies/characters/get.sparql`:
 
 ```
 PREFIX dbo: <http://dbpedia.org/ontology/>
@@ -291,7 +291,7 @@ WHERE {
 ```
 
 - `resources/movies/characters/get.json.vm`:
- 
+
 ```
 [
     #foreach( $person in $results )
@@ -324,15 +324,15 @@ docker run -it --rm  \
     cbadenes/r4r:latest
 ```
 
-Now, the request to [http://localhost:8080/movies](http://localhost:8080/movies) require a user name ( e.g `user1`) and a password (e.g `pwd1`) to be performed. These values have been defined in that environment variable. 
- 
+Now, the request to [http://localhost:8080/movies](http://localhost:8080/movies) require a user name ( e.g `user1`) and a password (e.g `pwd1`) to be performed. These values have been defined in that environment variable.
+
 ```sh
   curl -u user1:pwd1 http://localhost:8080/movies
-``` 
+```
 
 ## Documentation
 
-Static HTML can be used to document API Rest. All files in `resources/doc` folder are available from a browser. 
+Static HTML can be used to document API Rest. All files in `resources/doc` folder are available from a browser.
 
 A Swagger interface can be created by describing our services in a YAML file, as follows:
 
@@ -429,9 +429,9 @@ definitions:
       abstract:
         type: string
       released:
-        type: string 
+        type: string
 ```
 
-Then, a static html description can be created from that description in [swagger editor](http://editor.swagger.io/) by selecting `Generate Client > html2` option . 
+Then, a static html description can be created from that description in [swagger editor](http://editor.swagger.io/) by selecting `Generate Client > html2` option .
 
 A new file (`index.html`) is created and would be placed into the `resources/doc` folder. In this way, our API is described in: [http://localhost:8080/doc/index.html](http://localhost:8080/doc/index.html).   
