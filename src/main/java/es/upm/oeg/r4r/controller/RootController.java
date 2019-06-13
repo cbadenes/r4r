@@ -3,6 +3,9 @@ package es.upm.oeg.r4r.controller;
 import com.github.jsonldjava.shaded.com.google.common.base.Strings;
 import es.upm.oeg.r4r.service.DataService;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpException;
+import org.apache.http.conn.HttpHostConnectException;
+import org.apache.jena.sparql.engine.http.QueryExceptionHTTP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,8 +87,17 @@ public class RootController {
             String response = dataService.get(resources, parameters);
             if (Strings.isNullOrEmpty(response)) return new ResponseEntity<>("resource-not-found", HttpStatus.NOT_FOUND);
             return new ResponseEntity<>(response, HttpStatus.OK);
-        }catch (IOException e){
+        }catch (IOException e) {
+            LOG.warn(e.getMessage());
             return new ResponseEntity<>("resource-not-found", HttpStatus.NOT_FOUND);
+        }catch (QueryExceptionHTTP e) {
+            LOG.warn(e.getMessage());
+            Throwable cause = e.getCause();
+            if (cause instanceof HttpHostConnectException){
+                return new ResponseEntity<>("sparql-endpoint-not-available", HttpStatus.GATEWAY_TIMEOUT);
+            }else{
+                return new ResponseEntity<>("sparql-query-error", HttpStatus.NOT_IMPLEMENTED);
+            }
         }catch (Exception e){
             LOG.error(e.getMessage());
             return new ResponseEntity<>("internal-error", HttpStatus.INTERNAL_SERVER_ERROR);
