@@ -1,6 +1,7 @@
 package es.upm.oeg.r4r.retriever;
 
 import com.github.jsonldjava.shaded.com.google.common.base.Strings;
+import org.apache.http.client.HttpClient;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Literal;
@@ -32,7 +33,7 @@ public class SparqlQuery {
         this.id = id;
     }
 
-    public ResultSet execute(String endpoint, Map<String, String[]> parameters, Integer maxSize, Integer offset) throws IOException {
+    public ResultSet execute(HttpClient client, String endpoint, Map<String, String[]> parameters, Integer maxSize, Integer offset) throws IOException {
 
         if (!queryPath.toFile().exists()) throw new IOException("Query Resource '" + queryPath + "' not found");
 
@@ -85,12 +86,11 @@ public class SparqlQuery {
 
         Query q = qs.asQuery();
 
-        LOG.info("Sparql Query:\n" + q);
-
-        QueryExecution exec = QueryExecutionFactory.sparqlService(endpoint, q );
-
+        LOG.info("Sparql-Endpoint: "+ endpoint);
+        QueryExecution exec = QueryExecutionFactory.sparqlService(endpoint, q , client);
+        LOG.info("->:\n" + q);
         ResultSet results = exec.execSelect();
-
+        LOG.info("<-: rows=" + results.getRowNumber());
         return results;
     }
 
