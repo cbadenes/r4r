@@ -435,3 +435,40 @@ definitions:
 Then, a static html description can be created from that description in [swagger editor](http://editor.swagger.io/) by selecting `Generate Client > html2` option .
 
 A new file (`index.html`) is created and would be placed into the `resources/doc` folder. In this way, our API is described in: [http://localhost:8080/doc/index.html](http://localhost:8080/doc/index.html).   
+
+
+# Collaborative development
+
+It can be extended with [webhook](https://github.com/adnanh/webhook) to easily create HTTP endpoints (hooks) on your server, which you can use to execute configured commands.
+
+
+For example, if you're using Github, you can use it to set up a hook that updates the resources for your R4R project on your staging server, whenever you push changes to the master branch of your project.
+
+It would be enough to create the `hooks.json` file:
+
+```sh
+[
+  {
+    "id": "update",
+    "execute-command": "/home/cbadenes/project/hook-git.sh",
+    "command-working-directory": ""
+  }
+]
+```
+
+And a script to run it from `nohup`:
+
+```sh
+nohup webhook -hooks hooks.json -verbose > nohup.log 2>&1 &
+echo $! > nohup.pid
+tail -f nohup.log
+```
+
+
+Then, the configured command can be something like this `hook-git.sh`:
+
+```sh
+#!/bin/bash
+echo "Updating content"
+git pull origin master
+```
