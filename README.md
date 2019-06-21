@@ -235,6 +235,7 @@ WHERE {
 }
 ```
 
+A variable `?sid` is also available with a short version of the id (i.e without the namespace)
 
 And the `resources/movies/getById.json.vm` with this content:
 
@@ -472,3 +473,7 @@ Then, the configured command can be something like this `hook-git.sh`:
 echo "Updating content"
 git pull origin master
 ```
+
+# Acknowledgments
+
+This research was supported by the European Union's Horizon 2020 research and innovation programme under grant agreement No 780247: [TheyBuyForYou](http://theybuyforyou.eu). 
