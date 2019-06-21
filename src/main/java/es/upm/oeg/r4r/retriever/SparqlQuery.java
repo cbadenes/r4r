@@ -1,6 +1,7 @@
 package es.upm.oeg.r4r.retriever;
 
 import com.github.jsonldjava.shaded.com.google.common.base.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.query.*;
@@ -44,6 +45,11 @@ public class SparqlQuery {
         if (id.isPresent()){
             Resource idLiteral = ResourceFactory.createResource(id.get());
             qs.setParam( "id", idLiteral);
+            String shortId = StringUtils.substringAfterLast(id.get(), "/");
+            if (!Strings.isNullOrEmpty(shortId)){
+                Literal shortIdLiteral = ResourceFactory.createStringLiteral(shortId);
+                qs.setParam( "sid", shortIdLiteral);
+            }
         }
 
         Integer maxSizeParam = maxSize;

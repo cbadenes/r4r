@@ -1,5 +1,6 @@
 {
     "uri" : "$uri",
     "director" : "$director",
-    "country" : "$country"
+    "country" : "$country",
+    "id": "$mid"
 }
