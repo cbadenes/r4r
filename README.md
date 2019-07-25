@@ -474,6 +474,42 @@ echo "Updating content"
 git pull origin master
 ```
 
+# Full Deployment
+
+To deploy R4R and Virtuoso together, it is enough to describe both services in a `docker-compose.yml` as follows:
+
+```yaml
+version: '3'
+
+services:
+  r4r:
+    image: cbadenes/r4r
+    container_name: r4r
+    environment:
+      SPARQL_ENDPOINT: "http://virtuoso:8890/sparql"
+      RESOURCE_NAMESPACE: "http://www.example.com"
+    volumes:
+      - ./resources:/resources
+    ports:
+     - "8080:7777"
+    depends_on:
+     - "virtuoso"
+  virtuoso:
+    image: tenforce/virtuoso
+    container_name: virtuoso
+    environment:
+      SPARQL_UPDATE: "true"
+      DBA_PASSWORD: "my-pass"
+      DEFAULT_GRAPH: "http://www.example.com/my-graph"
+    volumes:
+      - ./data:/data
+    ports:
+      - "8890:8890"
+
+```
+
+Then, run it by: `$ docker-compose up`
+
 # Acknowledgments
 
-This research was supported by the European Union's Horizon 2020 research and innovation programme under grant agreement No 780247: [TheyBuyForYou](http://theybuyforyou.eu). 
+This research was supported by the European Union's Horizon 2020 research and innovation programme under grant agreement No 780247: [TheyBuyForYou](http://theybuyforyou.eu).
