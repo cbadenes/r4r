@@ -476,7 +476,9 @@ git pull origin master
 
 # Full Deployment
 
-To deploy R4R and Virtuoso together, it is enough to describe both services in a `docker-compose.yml` as follows:
+Docker-compose allows to start R4R and Virtuoso together in one command line.
+
+Describe both services in a `docker-compose.yml` as follows:
 
 ```yaml
 version: '3'
