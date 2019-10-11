@@ -87,8 +87,10 @@ public class SparqlQuery {
 
         }
 
+        int offsetValue = maxSizeParam * offsetParam;
+
         qs.append("\nLIMIT " + maxSizeParam + "\n");
-        qs.append("\nOFFSET " + offsetParam+ "\n");
+        qs.append("\nOFFSET " + offsetValue+ "\n");
 
         Query q = qs.asQuery();
 
