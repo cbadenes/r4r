@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -98,7 +99,6 @@ public class SparqlQuery {
         QueryExecution exec = QueryExecutionFactory.sparqlService(endpoint, q , client);
         LOG.info("->:\n" + q);
         ResultSet results = exec.execSelect();
-        LOG.info("<-: rows=" + results.getRowNumber());
         return results;
     }
 
