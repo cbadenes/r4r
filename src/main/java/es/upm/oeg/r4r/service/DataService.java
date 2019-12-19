@@ -58,9 +58,10 @@ public class DataService {
         }
 
         LOG.info("<-: rows=" + rows);
-        String json = dataParser.retrieve(resources, mapResults);
-        return json;
+        String response = dataParser.retrieve(resources, mapResults);
+        return response;
 
     }
+
 
 }

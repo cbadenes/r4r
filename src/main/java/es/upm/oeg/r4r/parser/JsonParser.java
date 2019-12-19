@@ -1,13 +1,20 @@
 package es.upm.oeg.r4r.parser;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.std.JsonValueSerializer;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.jena.atlas.json.JsonValue;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
+import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Badenes Olmedo, Carlos <cbadenes@fi.upm.es>
@@ -24,24 +31,35 @@ public class JsonParser {
         this.isList = isList;
     }
 
+    private Map<String,String> escape(Map<String,String> raw) {
+        return raw.entrySet().stream()
+                .collect(Collectors.toMap(
+                  entry -> entry.getKey(),
+                  entry -> StringEscapeUtils.escapeJson(entry.getValue())
+                ));
+                //.map(entry -> new AbstractMap.SimpleEntry<String, String>("exmpleString", "42")).collect(Collectors.toMap(Map.Entry::getKey, Function.identity()));
+    }
+
+
     public String get(List<Map<String,String>> mapResults){
         try {
-
-//            if (mapResults.isEmpty()) return "{}";
-
             VelocityContext context = new VelocityContext();
-
-
             if (isList){
-                context.put("results", mapResults);
+                context.put("results", mapResults.stream().map(map -> escape(map)).collect(Collectors.toList()));
             }else if (!mapResults.isEmpty()){
-                mapResults.get(0).entrySet().forEach(entry -> context.put(entry.getKey(), entry.getValue()));
+                for(Map.Entry<String,String> entry : mapResults.get(0).entrySet()){
+                    String value    = entry.getValue();
+                    String payload  = StringEscapeUtils.escapeJson(value);
+                    context.put(entry.getKey(), payload);
+                }
+
             }
 
             StringWriter fw = new StringWriter();
             template.merge(context, fw);
             fw.close();
-            return fw.toString();
+            String payload = fw.toString();
+            return payload;
         } catch (Exception e) {
             LOG.warn(e.getMessage());
             return "{}";

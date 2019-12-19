@@ -1,14 +1,20 @@
-PREFIX dbo: <http://dbpedia.org/ontology/>
-PREFIX dbp: <http://dbpedia.org/property/>
-PREFIX res: <http://dbpedia.org/resource/>
+PREFIX org: <http://www.w3.org/ns/org#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-SELECT DISTINCT ?uri ?name ?budget ?distributor ?language
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX tbfy: <https://theybuyforyou.eu/ontology/ocds/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX schema: <http://schema.org/>
+PREFIX dbp: <http://dbpedia.org/ontology/>
+PREFIX regorg: <http://www.w3.org/ns/regorg#>
+PREFIX bgh: <http://data.businessgraph.io/>
+SELECT DISTINCT ?s ?ln ?hn ?jur
 WHERE {
-    ?uri rdf:type dbo:Film .
-    ?uri dbp:language ?language .
-    OPTIONAL { ?uri dbo:budget ?budget } .
-    OPTIONAL { ?uri dbo:distributor ?distributor } .
-    OPTIONAL { ?uri rdfs:label ?name . FILTER (lang(?name) = 'en') } .
-    FILTER ( regex(?language, ?lang, "i") || isLiteral(?lang) = False ) .
+  ?s a tbfy:Organisation .
+  OPTIONAL { ?s tbfy:legalName ?ln } .
+  OPTIONAL { ?s tbfy:hasName ?hn } .
+  ?s owl:sameAs ?ss .
+  ?ss a regorg:RegisteredOrganization .
+  OPTIONAL { ?ss dbp:jurisdiction ?jur} .
+  FILTER ( regex(?ln, ?name, "i") || isLiteral(?name) = False ) .
 }

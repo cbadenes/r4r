@@ -26,6 +26,9 @@ public class QueryFactory {
     @Value("#{environment['RESOURCE_NAMESPACE']?:'${resource.namespace}'}")
     String resourceNamespace;
 
+    @Value("#{environment['RESOURCE_NESTED']?:${resource.nested}}")
+    Boolean resourceNested;
+
 
     private String resourceBaseUri;
 
@@ -45,10 +48,10 @@ public class QueryFactory {
             id          = Optional.empty();
         }else if (resources.length == 2){
             queryPath   = Paths.get(resourceFolder, resources[0], httpVerb+"ById.sparql");
-            id          = Optional.of(resourceBaseUri+resources[1]);
+            id          = resourceNested? Optional.of(resourceBaseUri+resources[0] + "/" + resources[1]) : Optional.of(resourceBaseUri+resources[1]);
         }else{
             queryPath   = Paths.get(resourceFolder, resources[0], resources[2], httpVerb+".sparql");
-            id          = Optional.of(resourceBaseUri+resources[1]);
+            id          = resourceNested? Optional.of(resourceBaseUri+resources[0] + "/" + resources[1]) : Optional.of(resourceBaseUri+resources[1]);
         }
 
         if (!queryPath.toFile().exists()) throw new IOException("Query template not found at: " + queryPath);

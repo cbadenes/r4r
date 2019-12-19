@@ -1,0 +1,14 @@
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX dbp: <http://dbpedia.org/property/>
+PREFIX res: <http://dbpedia.org/resource/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT DISTINCT ?uri ?name ?budget ?distributor ?language
+WHERE {
+    ?uri rdf:type dbo:Film .
+    ?uri dbp:language ?language .
+    OPTIONAL { ?uri dbo:budget ?budget } .
+    OPTIONAL { ?uri dbo:distributor ?distributor } .
+    OPTIONAL { ?uri rdfs:label ?name . FILTER (lang(?name) = 'en') } .
+    FILTER ( regex(?language, ?lang, "i") || isLiteral(?lang) = False ) .
+}
