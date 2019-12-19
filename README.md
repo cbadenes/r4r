@@ -265,6 +265,16 @@ And the `resources/movies/getById.json.vm` with this content:
 
 Now, you can get details about a movie by: [http://localhost:8080/movies/WarGames](http://localhost:8080/movies/WarGames)
 
+#### Nested URIs
+
+Sometimes the type of the resource is required to identify it, and adding the ID to the namespace is not enough:
+    
+    
+    https://eu.dbpedia.org/movies/WarGames
+     
+
+In this scenario, R4R should be run with the environment variable `RESOURCE_NESTED=True`. In this way, the resource type is incorporated, together with the namespace and ID, to create its URI.
+
 
 ## Related Resources
 
