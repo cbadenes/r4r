@@ -1,6 +1,8 @@
 package es.upm.oeg.r4r.retriever;
 
 import com.github.jsonldjava.shaded.com.google.common.base.Strings;
+import es.upm.oeg.r4r.data.Index;
+import es.upm.oeg.r4r.data.QueryView;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.jena.datatypes.RDFDatatype;
@@ -23,6 +25,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author Badenes Olmedo, Carlos <cbadenes@fi.upm.es>
@@ -64,6 +67,8 @@ public class SparqlQuery {
 
         Integer maxSizeParam = maxSize;
         Integer offsetParam = offset;
+        String sortCriteria = "";
+        String sortField = "";
 
         if (!parameters.isEmpty()){
 
@@ -83,6 +88,12 @@ public class SparqlQuery {
                     continue;
                 }
 
+                if (key.equalsIgnoreCase("sort")){
+                    sortCriteria    = val.toLowerCase().startsWith("-")? "DESC" : "ASC";
+                    sortField       = sortCriteria.equalsIgnoreCase("DESC")? StringUtils.substringAfter(val, "-") : val.trim();
+                    continue;
+                }
+
                 if (Strings.isNullOrEmpty(val)) continue;
 
                 Literal literal;
@@ -99,8 +110,18 @@ public class SparqlQuery {
 
         int offsetValue = maxSizeParam * offsetParam;
 
+
+        if (!StringUtils.isEmpty(sortField)){
+            // Getting most similar field for order it
+            QueryView queryView = new QueryView(qs.toString());
+            List<String> fields = queryView.getSelectFields();
+            final String refField = sortField;
+            Optional<Index> mostSimilarField = fields.stream().map(field -> new Index(field, Double.valueOf(StringUtils.getLevenshteinDistance(refField, field)))).sorted((a, b) -> a.getValue().compareTo(b.getValue())).findFirst();
+            if (mostSimilarField.isPresent()) qs.append("\nORDER BY " + sortCriteria+ "(?"+mostSimilarField.get().getText()+")\n");
+        }
         qs.append("\nLIMIT " + maxSizeParam + "\n");
         qs.append("\nOFFSET " + offsetValue+ "\n");
+
 
         Query tq = qs.asQuery();
 

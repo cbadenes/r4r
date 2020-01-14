@@ -37,7 +37,6 @@ public class JsonParser {
                   entry -> entry.getKey(),
                   entry -> StringEscapeUtils.escapeJson(entry.getValue())
                 ));
-                //.map(entry -> new AbstractMap.SimpleEntry<String, String>("exmpleString", "42")).collect(Collectors.toMap(Map.Entry::getKey, Function.identity()));
     }
 
 
@@ -65,5 +64,11 @@ public class JsonParser {
             return "{}";
         }
 
+    }
+
+
+    public static void main(String[] args) {
+        //System.out.println(StringEscapeUtils.escapeJson("http://dbpedia.org/resource/!Women_Art_Revolution"));
+        System.out.println(StringEscapeUtils.escapeJson("http://dbpedia.org/resource/!Women_Art_Revolution"));
     }
 }

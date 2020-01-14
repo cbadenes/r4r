@@ -210,6 +210,16 @@ Now you can make requests like this: [http://localhost:8080/movies?name=Games](h
 
 Be careful when naming variables, because if you use the same name in the query field as the variable returned in the sparql query an error will occur.
 
+## Sort Criteria
+
+The `sort` query param establishes the order of a solution sequence. 
+
+It contains a field name and an order modifier (either `+` or `-`). Each ordering comparator is either ascending (indicated by the `+ modifier or by no modifier) or descending (indicated by the `-` modifier).
+
+Internally, R4R adds an ORDER BY clause to the sparql query with the closest property (by using the Levenhstein distance) to the one specified in the `sort` field.
+
+Now you can make requests like this: http://localhost:8080/movies?name=Games&sort=-name
+
 ## Query Path
 
 In order to recover the information of a specific resource it is enough to add the following files:
