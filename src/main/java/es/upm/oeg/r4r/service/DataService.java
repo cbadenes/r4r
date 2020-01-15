@@ -33,6 +33,7 @@ public class DataService {
 
         List<Map<String,String>> mapResults = new ArrayList<>();
 
+        int rows = 0;
         if (results.isPresent()){
 
             ResultSet iterator = results.get();
@@ -47,17 +48,20 @@ public class DataService {
                     String varName = varNames.next();
                     RDFNode node = result.get(varName);
                     String value = node.isResource()? node.asResource().getURI() : node.asLiteral().getString();
-                    mapResult.put(varName, value.replace("\n","").replace("\"",""));
+                    //mapResult.put(varName, value.replace("\n","").replace("\"",""));
+                    mapResult.put(varName, value.replaceAll("\\P{Print}", ""));
                 }
-
+                rows++;
                 mapResults.add(mapResult);
             }
 
         }
 
-        String json = dataParser.retrieve(resources, mapResults);
-        return json;
+        LOG.info("<-: rows=" + rows);
+        String response = dataParser.retrieve(resources, mapResults);
+        return response;
 
     }
+
 
 }

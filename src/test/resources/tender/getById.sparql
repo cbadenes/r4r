@@ -1,0 +1,85 @@
+PREFIX org: <http://www.w3.org/ns/org#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX ocds: <http://data.tbfy.eu/ontology/ocds#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX schema: <http://schema.org/>
+SELECT ( ?id AS ?oid ) ?tid ?des ?stat ?hdocid ?hdoctype ?hdoclan ?hdocurl ?henq ?henqpstart ?henqpend ?hestcpstart ?hestcpend ?hitbpid ?hitbpaic ?hitbphc ?hitbpcs ?hitbpaics ?hlotdes ?hlottit ?hlotvam ?hlotvcu ?hmaxvam ?hmaxvcu ?hminvam ?hminvcu ?hmildes ?hmiltit ?hmildued ?hmilhdocid ?hmilhdoctype ?hmilhdoclan ?hmilhdocurl ?hrbvam ?hrbvcu ?hrbhdocid ?hrbhdoctype ?hrbhdoclan ?hrbhdocurl ?htpstart ?htpend
+WHERE {
+
+#Tender information
+  ?id a ocds:Tender .
+  OPTIONAL { ?id ocds:tenderId ?tid } .
+  OPTIONAL { ?id dcterms:description ?des } .
+  OPTIONAL { ?id ocds:tenderStatus ?stat } .
+
+#Object Property hasDocument
+  OPTIONAL { ?id ocds:hasDocument ?hdoc  .
+             ?hdoc ocds:documentId ?hdocid  .
+             ?hdoc ocds:documentType ?hdoctype  .
+             ?hdoc dcterms:language ?hdoclan  .
+             ?hdoc schema:URL ?hdocurl } .
+
+#Object Property hasEnquiryPeriod
+  OPTIONAL { ?id ocds:hasEnquiryPeriod ?henqp  .
+             ?henqp ocds:startDate ?henqpstart  .
+             ?henqp ocds:endDate ?henqpend } .
+
+#Object Property hasEstimatedContractPeriod
+  OPTIONAL { ?id ocds:hasEstimatedContractPeriod ?hestcp  .
+             ?hestcp ocds:startDate ?hestcpstart  .
+             ?hestcp ocds:endDate ?hestcpend } .
+
+#Object Property hasItemToBeProcured
+  OPTIONAL { ?id ocds:hasItemToBeProcured ?hitbp  .
+             ?hitbp ocds:itemId ?hitbpid  .
+             ?hitbp ocds:additionalItemClassificaton ?hitbpaic  .
+             ?hitbp ocds:hasClassificaton ?hitbphc  .
+             OPTIONAL { ?hitbp ocds:classificatonScheme ?hitbpcs  .
+             ?hitbp ocds:additionalItemClassificatonScheme ?hitbpaics }} .
+
+#Object Property hasLot
+  OPTIONAL { ?id ocds:hasLot ?hlot  .
+             ?hlot dcterms:description ?hlotdes  .
+             ?hlot dcterms:title ?hlottit  .
+             ?hlot ocds:hasLotValue ?hlotval  .
+             ?hlotval ocds:valueAmount ?hlotvam  .
+             ?hlotval ocds:valueCurrency ?hlotvcu } .
+
+#Object Property hasMaxEstimatedValue
+  OPTIONAL { ?id ocds:hasMaxEstimatedValue ?hmaxv  .
+             ?hmaxv ocds:valueAmount ?hmaxvam  .
+            ?hmaxv ocds:valueCurrency ?hmaxvcu } .
+
+#Object Property hasMinEstimatedValue
+  OPTIONAL { ?id ocds:hasMinEstimatedValue ?hminv  .
+             ?hminv ocds:valueAmount ?hminvam  .
+             ?hminv ocds:valueCurrency ?hminvcu } .
+
+#Object Property hasMilestone
+  OPTIONAL { ?id ocds:hasMilestone ?hmil  .
+             ?hmil dcterms:description ?hmildes  .
+             ?hmil dcterms:title ?hmiltit  .
+             ?hmil ocds:milestoneDueDate ?hmildued  .
+             ?hmil ocds:hasDocument ?hmilhdoc  .
+             ?hmilhdoc ocds:documentId ?hmilhdocid  .
+             ?hmilhdoc ocds:documentType ?hmilhdoctype  .
+             ?hmilhdoc dcterms:language ?hmilhdoclan  .
+             ?hmilhdoc schema:URL ?hmilhdocurl } .
+
+#Object Property hasReceivedBid
+  OPTIONAL { ?id ocds:hasReceivedBid ?hrb  .
+             ?hrb ocds:valueAmount ?hrbvam  .
+             ?hrb ocds:valueCurrency ?hrbvcu  .
+             ?hrb ocds:hasDocument ?hrbhdoc  .
+             ?hrbhdoc ocds:documentId ?hrbhdocid  .
+             ?hrbhdoc ocds:documentType ?hrbhdoctype  .
+             ?hrbhdoc dcterms:language ?hrbhdoclan  .
+             ?hrbhdoc schema:URL ?hrbhdocurl } .
+
+#Object Property hasTenderPeriod
+  OPTIONAL { ?id ocds:hasTenderPeriod ?htp  .
+             ?htp ocds:startDate ?htpstart  .
+             ?htp ocds:endDate ?htpend } .
+}

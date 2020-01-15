@@ -1,0 +1,12 @@
+PREFIX ocds: <http://data.tbfy.eu/ontology/ocds#>
+PREFIX dct: <http://purl.org/dc/terms/>
+
+SELECT ?s ?stat ?title ?description
+WHERE {
+	?s a ocds:Tender .
+  ?s ocds:tenderStatus ?stat .
+  OPTIONAL { ?s ocds:tenderId ?tenid } .
+  OPTIONAL { ?s dct:title ?title } .
+	OPTIONAL { ?s dct:description ?description } .
+  FILTER ( regex(?stat, ?status, "i") || !isLiteral(?status) ) .
+}

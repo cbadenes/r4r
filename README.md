@@ -210,6 +210,16 @@ Now you can make requests like this: [http://localhost:8080/movies?name=Games](h
 
 Be careful when naming variables, because if you use the same name in the query field as the variable returned in the sparql query an error will occur.
 
+## Sort Criteria
+
+The `sort` query param establishes the order of a solution sequence. 
+
+It contains a field name and an order modifier (either `+` or `-`). Each ordering comparator is either ascending (indicated by the `+ modifier or by no modifier) or descending (indicated by the `-` modifier).
+
+Internally, R4R adds an ORDER BY clause to the sparql query with the closest property (by using the Levenhstein distance) to the one specified in the `sort` field.
+
+Now you can make requests like this: http://localhost:8080/movies?name=Games&sort=-name
+
 ## Query Path
 
 In order to recover the information of a specific resource it is enough to add the following files:
@@ -264,6 +274,16 @@ And the `resources/movies/getById.json.vm` with this content:
 ```
 
 Now, you can get details about a movie by: [http://localhost:8080/movies/WarGames](http://localhost:8080/movies/WarGames)
+
+#### Nested URIs
+
+Sometimes the type of the resource is required to identify it, and adding the ID to the namespace is not enough:
+    
+    
+    https://eu.dbpedia.org/movies/WarGames
+     
+
+In this scenario, R4R should be run with the environment variable `RESOURCE_NESTED=True`. In this way, the resource type is incorporated, together with the namespace and ID, to create its URI.
 
 
 ## Related Resources
@@ -474,6 +494,46 @@ echo "Updating content"
 git pull origin master
 ```
 
+# Full Deployment
+
+Docker-compose allows to start R4R and Virtuoso together in one command line.
+
+Describe both services in a `docker-compose.yml` as follows:
+
+```yaml
+version: '3'
+
+services:
+  r4r:
+    image: cbadenes/r4r
+    container_name: r4r
+    environment:
+      SPARQL_ENDPOINT: "http://virtuoso:8890/sparql"
+      RESOURCE_NAMESPACE: "http://www.example.com"
+    volumes:
+      - ./resources:/resources
+    ports:
+     - "8080:7777"
+    depends_on:
+     - "virtuoso"
+  virtuoso:
+    image: tenforce/virtuoso
+    container_name: virtuoso
+    environment:
+      SPARQL_UPDATE: "true"
+      DBA_PASSWORD: "my-pass"
+      DEFAULT_GRAPH: "http://www.example.com/my-graph"
+    volumes:
+      - ./data:/data
+    ports:
+      - "8890:8890"
+
+```
+
+Then, run it by: `$ docker-compose up`
+
+Virtuoso will be available at: [http://localhost:8890](http://localhost:8890), and R4R will be listening at: [http://localhost:8080](http://localhost:8080)
+
 # Acknowledgments
 
-This research was supported by the European Union's Horizon 2020 research and innovation programme under grant agreement No 780247: [TheyBuyForYou](http://theybuyforyou.eu). 
+This research was supported by the European Union's Horizon 2020 research and innovation programme under grant agreement No 780247: [TheyBuyForYou](http://theybuyforyou.eu).
