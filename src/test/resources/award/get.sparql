@@ -8,6 +8,6 @@ WHERE {
   	OPTIONAL { ?qid dct:description ?qdescription } .
   	OPTIONAL { ?qid ocds:awardDate ?qdate } .
   	OPTIONAL { ?qid ocds:awardStatus ?qstatus } .
-    BIND (STRDT ( ?qdate , xsd:dateTime) as ?newdate ) .
-   	FILTER ( ?newdate > '2019-01-01T00:00:00Z'^^xsd:dateTime && ?newdate < '2020-01-01T00:00:00Z'^^xsd:dateTime )
+    FILTER ( isNumeric(?end_dt) = True || STRDT( ?qdate , xsd:dateTime) < ?end_dt)
+   	FILTER ( isNumeric(?start_dt) = True || STRDT( ?qdate , xsd:dateTime) > ?start_dt)
 }

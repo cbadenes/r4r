@@ -202,13 +202,23 @@ WHERE {
         foaf:name ?m_name .
     FILTER (lang(?m_name) = 'en') .
     OPTIONAL { ?m_uri dbp:bonusTracks ?m_bonus } .
-    FILTER ( regex(?m_name, ?name, "i") || isLiteral(?name) = False ) .
+    FILTER ( isNumeric(?name) = True || regex(?m_name, ?name, "i") ) .
 }
 ```
 
 Now you can make requests like this: [http://localhost:8080/movies?name=Games](http://localhost:8080/movies?name=Games)
 
 Be careful when naming variables, because if you use the same name in the query field as the variable returned in the sparql query an error will occur.
+
+### Operand Data Types
+
+The XSD type of the query parameter can be specified by adding the following suffixes to its name:
+- `_dt`: xsd:dateTime
+- `_d`: xsd:double
+- `_i`: xsd:integer
+- `_s`: xsd:string
+- `_b`: xsd:boolean
+
 
 ## Sort Criteria
 
