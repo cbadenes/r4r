@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2019. Universidad Politecnica de Madrid
+  ~ Copyright (c) 2020. Universidad Politecnica de Madrid
   ~
   ~ @author Badenes Olmedo, Carlos <cbadenes@fi.upm.es>
   ~
@@ -11,7 +11,7 @@
 
 	<groupId>es.upm.oeg</groupId>
     <artifactId>r4r</artifactId>
-    <version>0.6</version>
+    <version>0.7</version>
     <packaging>jar</packaging>
     <name>Restful_API-4-RDF</name>
     <description>Automatic creation of Restful APIs from RDF Queries</description>

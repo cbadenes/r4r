@@ -123,6 +123,7 @@ public class SparqlQuery {
         qs.append("\nOFFSET " + offsetValue+ "\n");
 
 
+        // Replace filtering variables by query parameters
         Query tq = qs.asQuery();
 
         Map<String, Integer> rvMap = new HashMap<>();
@@ -130,7 +131,22 @@ public class SparqlQuery {
 
         ElementGroup eg = (ElementGroup) tq.getQueryPattern();
         List<Element> elements = eg.getElements();
+        Map<String,String> bindingVars = new HashMap<>();
         for (Element el : elements){
+            if (el instanceof ElementBind){
+                String qel = el.toString();
+                // BIND (STRDT ( ?qdate , xsd:dateTime) as ?newdate ) .
+                Matcher matcher = pattern.matcher(qel);
+                while (matcher.find()) {
+                    String qvar = matcher.group(0);
+                    String key = StringUtils.substringAfter(qvar,"?");
+                    if (!rvMap.containsKey(key) && !qs.getVariableParameters().containsKey(key)){
+                        LOG.info("Adding internal binding parameter: " + qvar);
+                        bindingVars.put(key,"");
+                    }
+                }
+
+            }
             if (el instanceof ElementFilter){
                 String qel = el.toString();
 
@@ -139,7 +155,7 @@ public class SparqlQuery {
                 while (matcher.find()) {
                     String qvar = matcher.group(0);
                     String key = StringUtils.substringAfter(qvar,"?");
-                    if (!rvMap.containsKey(key) && !qs.getVariableParameters().containsKey(key)){
+                    if (!rvMap.containsKey(key) && !qs.getVariableParameters().containsKey(key) && !bindingVars.containsKey(key)){
                         LOG.info("Filtering Query Parameter: " + qvar);
                         Literal literal = ResourceFactory.createPlainLiteral("");
                         qs.setParam(qvar,literal);

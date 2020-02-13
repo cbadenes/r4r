@@ -1,0 +1,13 @@
+PREFIX ocds: <http://data.tbfy.eu/ontology/ocds#>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?qid ?qtitle ?qdescription ?qdate ?qstatus
+WHERE {
+	?qid a ocds:Award .
+  	OPTIONAL { ?qid dct:title ?qtitle } .
+  	OPTIONAL { ?qid dct:description ?qdescription } .
+  	OPTIONAL { ?qid ocds:awardDate ?qdate } .
+  	OPTIONAL { ?qid ocds:awardStatus ?qstatus } .
+    BIND (STRDT ( ?qdate , xsd:dateTime) as ?newdate ) .
+   	FILTER ( ?newdate > '2019-01-01T00:00:00Z'^^xsd:dateTime && ?newdate < '2020-01-01T00:00:00Z'^^xsd:dateTime )
+}

@@ -1,0 +1,53 @@
+[
+    #foreach( $awards in $results )
+        {
+            #set( $control_coma = false )
+            #if ( $awards.qid )
+            #set ( $index = $awards.qid.lastIndexOf("/") )
+            #set ( $index = $index + 1 )
+            #set ( $id = $awards.qid.substring($index, $awards.qid.length()) )
+              #if ( $control_coma )
+                ,
+              #end
+              "id" : "$id"
+              #set( $control_coma = true )
+            #end
+
+            #if ( $awards.qtitle )
+              #if ( $control_coma )
+                ,
+              #end
+              "title" : "$awards.qtitle"
+              #set( $control_coma = true )
+            #end
+
+            #if ( $awards.qdescription )
+              #if ( $control_coma )
+                ,
+              #end
+              "description" : "$awards.qdescription"
+              #set( $control_coma = true )
+            #end
+
+            #if ( $awards.qdate )
+              #if ( $control_coma )
+                ,
+              #end
+              "date" : "$awards.qdate"
+              #set( $control_coma = true )
+            #end
+
+            #if ( $awards.qstatus )
+              #if ( $control_coma )
+                ,
+              #end
+              "status" : "$awards.qstatus"
+              #set( $control_coma = true )
+            #end
+
+        }
+         #if ( $velocityCount < ${results.size()} )
+            ,
+         #end
+    #end
+]
