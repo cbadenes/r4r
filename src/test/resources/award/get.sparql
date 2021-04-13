@@ -1,0 +1,13 @@
+PREFIX ocds: <http://data.tbfy.eu/ontology/ocds#>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?qid ?qtitle ?qdescription ?qdate ?qstatus
+WHERE {
+	?qid a ocds:Award .
+  	OPTIONAL { ?qid dct:title ?qtitle } .
+  	OPTIONAL { ?qid dct:description ?qdescription } .
+  	OPTIONAL { ?qid ocds:awardDate ?qdate } .
+  	OPTIONAL { ?qid ocds:awardStatus ?qstatus } .
+    FILTER ( isNumeric(?end_dt) = True || STRDT( ?qdate , xsd:dateTime) < ?end_dt)
+   	FILTER ( isNumeric(?start_dt) = True || STRDT( ?qdate , xsd:dateTime) > ?start_dt)
+}

@@ -6,6 +6,8 @@ import es.upm.oeg.r4r.data.QueryView;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.jena.datatypes.RDFDatatype;
+import org.apache.jena.datatypes.xsd.XSDDatatype;
+import org.apache.jena.datatypes.xsd.impl.XSDFloat;
 import org.apache.jena.graph.Node;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Literal;
@@ -100,7 +102,19 @@ public class SparqlQuery {
                 try{
                     literal = ResourceFactory.createTypedLiteral(new Integer(val));
                 }catch (NumberFormatException e){
-                    literal = ResourceFactory.createPlainLiteral(value[0]);
+                    if (key.toLowerCase().endsWith("_dt")) {
+                        literal = ResourceFactory.createTypedLiteral(value[0], XSDDatatype.XSDdateTime);
+                    }else if (key.toLowerCase().endsWith("_d")){
+                        literal = ResourceFactory.createTypedLiteral(value[0], XSDDatatype.XSDdouble);
+                    }else if (key.toLowerCase().endsWith("_i")){
+                        literal = ResourceFactory.createTypedLiteral(value[0], XSDDatatype.XSDinteger);
+                    }else if (key.toLowerCase().endsWith("_s")){
+                        literal = ResourceFactory.createTypedLiteral(value[0], XSDDatatype.XSDstring);
+                    }else if (key.toLowerCase().endsWith("_b")){
+                        literal = ResourceFactory.createTypedLiteral(value[0], XSDDatatype.XSDboolean);
+                    }else{
+                        literal = ResourceFactory.createPlainLiteral(value[0]);
+                    }
                 }
 
                 qs.setParam(key,literal);
@@ -123,6 +137,7 @@ public class SparqlQuery {
         qs.append("\nOFFSET " + offsetValue+ "\n");
 
 
+        // Replace filtering variables by query parameters
         Query tq = qs.asQuery();
 
         Map<String, Integer> rvMap = new HashMap<>();
@@ -130,7 +145,22 @@ public class SparqlQuery {
 
         ElementGroup eg = (ElementGroup) tq.getQueryPattern();
         List<Element> elements = eg.getElements();
+        Map<String,String> bindingVars = new HashMap<>();
         for (Element el : elements){
+            if (el instanceof ElementBind){
+                String qel = el.toString();
+                // BIND (STRDT ( ?qdate , xsd:dateTime) as ?newdate ) .
+                Matcher matcher = pattern.matcher(qel);
+                while (matcher.find()) {
+                    String qvar = matcher.group(0);
+                    String key = StringUtils.substringAfter(qvar,"?");
+                    if (!rvMap.containsKey(key) && !qs.getVariableParameters().containsKey(key)){
+                        LOG.info("Adding internal binding parameter: " + qvar);
+                        bindingVars.put(key,"");
+                    }
+                }
+
+            }
             if (el instanceof ElementFilter){
                 String qel = el.toString();
 
@@ -139,10 +169,10 @@ public class SparqlQuery {
                 while (matcher.find()) {
                     String qvar = matcher.group(0);
                     String key = StringUtils.substringAfter(qvar,"?");
-                    if (!rvMap.containsKey(key) && !qs.getVariableParameters().containsKey(key)){
+                    if (!rvMap.containsKey(key) && !qs.getVariableParameters().containsKey(key) && !bindingVars.containsKey(key)){
                         LOG.info("Filtering Query Parameter: " + qvar);
-                        Literal literal = ResourceFactory.createPlainLiteral("");
-                        qs.setParam(qvar,literal);
+                        // FILTER ( isNumeric(?param) = True || .. )
+                        qs.setParam(qvar,ResourceFactory.createTypedLiteral("1", XSDDatatype.XSDnonNegativeInteger));
                     }
                 }
             }
