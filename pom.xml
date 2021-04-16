@@ -62,7 +62,7 @@
         <surefire.junit.version>2.12</surefire.junit.version>
 
         <commons-lang.version>3.5</commons-lang.version>
-        <guava.version>27.1-jre</guava.version>
+        <guava.version>29.0-jre</guava.version>
         <jena.version>3.11.0</jena.version>
         <junit.version>4.12</junit.version>
         <logback.version>1.1.3</logback.version>
