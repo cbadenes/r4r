@@ -11,317 +11,348 @@
     #set( $control_coma = true )
   #end
 
-  #if ( $tid )
+  #if ( $qtitle )
     #if ( $control_coma )
       ,
     #end
-    "tenderId" : "$tid"
+    "title" : "$qtitle"
     #set( $control_coma = true )
   #end
 
-  #if ( $des )
+  #if ( $qdescription )
     #if ( $control_coma )
       ,
     #end
-    "description" : "$des"
+    "description" : "$qdescription"
     #set( $control_coma = true )
   #end
 
-  #if ( $stat )
+  #if ( $qstatus )
     #if ( $control_coma )
       ,
     #end
-    "status" : "$stat"
+    "status" : "$qstatus"
     #set( $control_coma = true )
   #end
 
-#if ( $hdocid )
-  #if ( $control_coma )
-    ,
+  #if ( $qnumtenderers )
+    #if ( $control_coma )
+      ,
+    #end
+    "numberOfTenderers" : "$qnumtenderers"
+    #set( $control_coma = true )
   #end
-  "documentId" : "$hdocid"
-  #set( $control_coma = true )
-#end
 
-#if ( $hdoctype )
-  #if ( $control_coma )
-    ,
+  #* Procurement *#
+  #if ( $qprocurementmethod || $qprocurementmethoddetails )
+    #if ( $control_coma )
+      ,
+    #end
+      "procurement" : {
+      #set( $control_sub = true )
+      #set( $control_coma = false )
   #end
-  "documentType" : "$hdoctype"
-  #set( $control_coma = true )
-#end
 
-#if ( $hdoclan )
-  #if ( $control_coma )
-    ,
+  #if ( $qprocurementmethod )
+    #if ( $control_coma )
+      ,
+    #end
+    "method" : "$qprocurementmethod"
+    #set( $control_coma = true )
   #end
-  "documentLanguage" : "$hdoclan"
-  #set( $control_coma = true )
-#end
 
-#if ( $hdocurl )
-  #if ( $control_coma )
-    ,
+  #if ( $qprocurementmethoddetails )
+    #if ( $control_coma )
+      ,
+    #end
+    "methodDetails" : "$qprocurementmethoddetails"
+    #set( $control_coma = true )
   #end
-  "documentURL" : "$hdocurl"
-  #set( $control_coma = true )
-#end
 
-#if ( $henqpstart )
-  #if ( $control_coma )
-    ,
+  #if ( $control_sub )
+    }
   #end
-  "enquiryStartDate" : "$henqpstart"
-  #set( $control_coma = true )
-#end
+  #set( $control_sub = false )
 
-#if ( $henqpend )
-  #if ( $control_coma )
-    ,
+  #* Award *#
+    #if ( $qawardcriteria || $qawardcriteriadetails || $qawardperiodstartdate || $qawardperiodenddate )
+      #if ( $control_coma )
+        ,
+      #end
+        "award" : {
+        #set( $control_sub = true )
+        #set( $control_coma = false )
+    #end
+
+    #if ( $qawardcriteria )
+      #if ( $control_coma )
+        ,
+      #end
+      "criteria" : "$qawardcriteria"
+      #set( $control_coma = true )
+    #end
+
+    #if ( $qawardcriteriadetails )
+      #if ( $control_coma )
+        ,
+      #end
+      "criteriaDetails" : "$qawardcriteriadetails"
+      #set( $control_coma = true )
+    #end
+
+      #* Award period level 2 *#
+      #if ( $qawardperiodstartdate || $qawardperiodenddate )
+        #if ( $control_coma )
+          ,
+        #end
+          "period" : {
+          #set( $control_sub2 = true )
+          #set( $control_coma = false )
+      #end
+
+      #if ( $qawardperiodstartdate )
+        #if ( $control_coma )
+          ,
+        #end
+        "startDate" : "$qawardperiodstartdate"
+        #set( $control_coma = true )
+      #end
+
+      #if ( $qawardperiodenddate )
+        #if ( $control_coma )
+          ,
+        #end
+        "endDate" : "$qawardperiodenddate"
+        #set( $control_coma = true )
+      #end
+
+      #if ( $control_sub2 )
+        }
+      #end
+      #set( $control_sub2 = false )
+
+    #if ( $control_sub )
+      }
+    #end
+    #set( $control_sub = false )
+
+    #* Submission *#
+    #if ( $qsubmissionmethod || $qsubmissionmethoddetails )
+      #if ( $control_coma )
+        ,
+      #end
+        "submission" : {
+        #set( $control_sub = true )
+        #set( $control_coma = false )
+    #end
+
+    #if ( $qsubmissionmethod )
+      #if ( $control_coma )
+        ,
+      #end
+      "method" : "$qsubmissionmethod"
+      #set( $control_coma = true )
+    #end
+
+    #if ( $qsubmissionmethoddetails )
+      #if ( $control_coma )
+        ,
+      #end
+      "methodDetails" : "$qsubmissionmethoddetails"
+      #set( $control_coma = true )
+    #end
+
+    #if ( $control_sub )
+      }
+    #end
+    #set( $control_sub = false )
+
+    #if ( $qenquiry )
+      #if ( $control_coma )
+        ,
+      #end
+      "enquiry" : "$qenquiry"
+      #set( $control_coma = true )
+    #end
+
+    #if ( $qeligibilitycriteria )
+      #if ( $control_coma )
+        ,
+      #end
+      "eligibilityCriteria" : "$qeligibilitycriteria"
+      #set( $control_coma = true )
+    #end
+
+    #* Tender Period *#
+    #if ( $qtenderperiodstartdate || $qtenderperiodenddate )
+      #if ( $control_coma )
+        ,
+      #end
+        "tenderPeriod" : {
+        #set( $control_sub = true )
+        #set( $control_coma = false )
+    #end
+
+    #if ( $qtenderperiodstartdate )
+      #if ( $control_coma )
+        ,
+      #end
+      "startDate" : "$qtenderperiodstartdate"
+      #set( $control_coma = true )
+    #end
+
+    #if ( $qtenderperiodenddate )
+      #if ( $control_coma )
+        ,
+      #end
+      "endDate" : "$qtenderperiodenddate"
+      #set( $control_coma = true )
+    #end
+
+    #if ( $control_sub )
+      }
+    #end
+    #set( $control_sub = false )
+
+  #* Value *#
+  #if ( $qminvalueamount || $qminvaluecurrency || $qmaxvalueamount || $qmaxvaluecurrency)
+    #if ( $control_coma )
+      ,
+    #end
+      "value" : {
+      #set( $control_sub = true )
+      #set( $control_coma = false )
   #end
-  "enquiryEndDate" : "$henqpend"
-  #set( $control_coma = true )
-#end
 
-#if ( $hestcpstart )
-  #if ( $control_coma )
-    ,
+  #if ( $qminvalueamount )
+    #if ( $control_coma )
+      ,
+    #end
+    "minEstimatedAmount" : "$qminvalueamount"
+    #set( $control_coma = true )
   #end
-  "estimatedContractStartDate" : "$hestcpstart"
-  #set( $control_coma = true )
-#end
 
-#if ( $hestcpend )
-  #if ( $control_coma )
-    ,
+  #if ( $qminvaluecurrency )
+    #if ( $control_coma )
+      ,
+    #end
+    "minEstimatedCurrency" : "$qminvaluecurrency"
+    #set( $control_coma = true )
   #end
-  "estimatedContractEndDate" : "$hestcpend"
-  #set( $control_coma = true )
-#end
 
-
-#if ( $hitbpid )
-  #if ( $control_coma )
-    ,
+  #if ( $qmaxvalueamount )
+    #if ( $control_coma )
+      ,
+    #end
+    "maxEstimatedAmount" : "$qmaxvalueamount"
+    #set( $control_coma = true )
   #end
-  "itemId" : "$hitbpid"
-  #set( $control_coma = true )
-#end
 
-#if ( $hitbpaic )
-  #if ( $control_coma )
-    ,
+  #if ( $qmaxvaluecurrency )
+    #if ( $control_coma )
+      ,
+    #end
+    "maxEstimatedCurrency" : "$qmaxvaluecurrency"
+    #set( $control_coma = true )
   #end
-  "additionalItemClassificaton" : "$hitbpaic"
-  #set( $control_coma = true )
-#end
 
-#if ( $hitbphc )
-  #if ( $control_coma )
-    ,
+  #if ( $control_sub )
+    }
   #end
-  "hasClassificaton" : "$hitbphc"
-  #set( $control_coma = true )
-#end
+  #set( $control_sub = false )
 
-#if ( $hitbpcs )
-  #if ( $control_coma )
-    ,
+  #* Milestone level 1 *#
+  #if ( $qmiltitle || $qmildescription || $qmilduedate || $qmildocid || $qmildoctype || $qmildoclanguage || $qmildocurl)
+    #if ( $control_coma )
+      ,
+    #end
+      "milestone" : {
+      #set( $control_sub = true )
+      #set( $control_coma = false )
   #end
-  "classificatonScheme" : "$hitbpcs"
-  #set( $control_coma = true )
-#end
 
-#if ( $hitbpaics )
-  #if ( $control_coma )
-    ,
+  #if ( $qmiltitle )
+    #if ( $control_coma )
+      ,
+    #end
+    "title" : "$qmiltitle"
+    #set( $control_coma = true )
   #end
-  "additionalItemClassificatonScheme" : "$hitbpaics"
-  #set( $control_coma = true )
-#end
 
-#if ( $hlotdes )
-  #if ( $control_coma )
-    ,
+  #if ( $qmildescription )
+    #if ( $control_coma )
+      ,
+    #end
+    "description" : "$qmildescription"
+    #set( $control_coma = true )
   #end
-  "lotDescription" : "$hlotdes"
-  #set( $control_coma = true )
-#end
 
-#if ( $hlottit )
-  #if ( $control_coma )
-    ,
+  #if ( $qmilduedate )
+    #if ( $control_coma )
+      ,
+    #end
+    "dueDate" : "$qmilduedate"
+    #set( $control_coma = true )
   #end
-  "lotTitle" : "$hlottit"
-  #set( $control_coma = true )
-#end
 
-#if ( $hlotvam )
-  #if ( $control_coma )
-    ,
+    #* Milestone document level 2 *#
+    #if ( $qmildocid || $qmildoctype || $qmildoclanguage || $qmildocurl )
+      #if ( $control_coma )
+        ,
+      #end
+        "document" : {
+        #set( $control_sub2 = true )
+        #set( $control_coma = false )
+    #end
+
+    #if ( $qmildocid )
+      #if ( $control_coma )
+        ,
+      #end
+      "milestoneDocumentId" : "$qmildocid"
+      #set( $control_coma = true )
+    #end
+
+    #if ( $qmildoctype )
+      #if ( $control_coma )
+        ,
+      #end
+      "milestoneDocumentType" : "$qmildoctype"
+      #set( $control_coma = true )
+    #end
+
+    #if ( $qmildoclanguage )
+      #if ( $control_coma )
+        ,
+      #end
+      "milestoneDocumentLanguage" : "$qmildoclanguage"
+      #set( $control_coma = true )
+    #end
+
+    #if ( $qmildocurl )
+      #if ( $control_coma )
+        ,
+      #end
+      "milestoneDocumentURL" : "$qmildocurl"
+      #set( $control_coma = true )
+    #end
+
+    #if ( $control_sub2 )
+      }
+    #end
+    #set( $control_sub2 = false )
+
+  #if ( $control_sub )
+    }
   #end
-  "lotAmount" : "$hlotvam"
-  #set( $control_coma = true )
-#end
+  #set( $control_sub = false )
 
-#if ( $hlotvcu )
-  #if ( $control_coma )
-    ,
+  #if ( $qamendmentdate )
+    #if ( $control_coma )
+      ,
+    #end
+    "amendmentDate" : "$qamendmentdate"
+    #set( $control_coma = true )
   #end
-  "lotCurrency" : "$hlotvcu"
-  #set( $control_coma = true )
-#end
 
-#if ( $hmaxvam )
-  #if ( $control_coma )
-    ,
-  #end
-  "maxEstimatedValueAmount" : "$hmaxvam"
-  #set( $control_coma = true )
-#end
-
-#if ( $hmaxvcu )
-  #if ( $control_coma )
-    ,
-  #end
-  "maxEstimatedValueCurrency" : "$hmaxvcu"
-  #set( $control_coma = true )
-#end
-
-#if ( $hminvam )
-  #if ( $control_coma )
-    ,
-  #end
-  "minEstimatedValueAmount" : "$hminvam"
-  #set( $control_coma = true )
-#end
-
-#if ( $hminvcu )
-  #if ( $control_coma )
-    ,
-  #end
-  "minEstimatedValueCurrency" : "$hminvcu"
-  #set( $control_coma = true )
-#end
-
-#if ( $hmildes )
-  #if ( $control_coma )
-    ,
-  #end
-  "milestoneDescription" : "$hmildes"
-  #set( $control_coma = true )
-#end
-
-#if ( $hmiltit )
-  #if ( $control_coma )
-    ,
-  #end
-  "milestoneTitle" : "$hmiltit"
-  #set( $control_coma = true )
-#end
-
-#if ( $hmildued )
-  #if ( $control_coma )
-    ,
-  #end
-  "milestoneDueDate" : "$hmildued"
-  #set( $control_coma = true )
-#end
-
-#if ( $hmilhdocid )
-  #if ( $control_coma )
-    ,
-  #end
-  "milestoneDocumentId" : "$hmilhdocid"
-  #set( $control_coma = true )
-#end
-
-#if ( $hmilhdoctype )
-  #if ( $control_coma )
-    ,
-  #end
-  "milestoneDocumentType" : "$hmilhdoctype"
-  #set( $control_coma = true )
-#end
-
-#if ( $hmilhdoclan )
-  #if ( $control_coma )
-    ,
-  #end
-  "milestoneDocumentLanguage" : "$hmilhdoclan"
-  #set( $control_coma = true )
-#end
-
-#if ( $hmilhdocurl )
-  #if ( $control_coma )
-    ,
-  #end
-  "milestoneDocumentURL" : "$hmilhdocurl"
-  #set( $control_coma = true )
-#end
-
-#if ( $hrbvam )
-  #if ( $control_coma )
-    ,
-  #end
-  "bidValueAmount" : "$hrbvam"
-  #set( $control_coma = true )
-#end
-
-#if ( $hrbvcu )
-  #if ( $control_coma )
-    ,
-  #end
-  "bidValueCurrency" : "$hrbvcu"
-  #set( $control_coma = true )
-#end
-
-#if ( $hrbhdocid )
-  #if ( $control_coma )
-    ,
-  #end
-  "bidDocumentId" : "$hrbhdocid"
-  #set( $control_coma = true )
-#end
-
-#if ( $hrbhdoctype )
-  #if ( $control_coma )
-    ,
-  #end
-  "bidDocumentType" : "$hrbhdoctype"
-  #set( $control_coma = true )
-#end
-
-#if ( $hrbhdoclan )
-  #if ( $control_coma )
-    ,
-  #end
-  "bidDocumentLanguage" : "$hrbhdoclan"
-  #set( $control_coma = true )
-#end
-
-#if ( $hrbhdocurl )
-  #if ( $control_coma )
-    ,
-  #end
-  "bidDocumentURL" : "$hrbhdocurl"
-  #set( $control_coma = true )
-#end
-
-#if ( $htpstart )
-  #if ( $control_coma )
-    ,
-  #end
-  "tenderPeriodStartDate" : "$htpstart"
-  #set( $control_coma = true )
-#end
-
-#if ( $htpend )
-  #if ( $control_coma )
-    ,
-  #end
-  "tenderPeriodEndDate" : "$htpend"
-  #set( $control_coma = true )
-#end
-
-}
+  }

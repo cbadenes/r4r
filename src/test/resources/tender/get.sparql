@@ -1,12 +1,22 @@
 PREFIX ocds: <http://data.tbfy.eu/ontology/ocds#>
 PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX tbfy: <http://data.tbfy.eu/ontology/tbfy#>
 
-SELECT ?s ?stat ?title ?description
+SELECT ?qid ?qtitle ?qdescription ?qstatus ?releasepublisheddate
 WHERE {
-	?s a ocds:Tender .
-  ?s ocds:tenderStatus ?stat .
-  OPTIONAL { ?s ocds:tenderId ?tenid } .
-  OPTIONAL { ?s dct:title ?title } .
-	OPTIONAL { ?s dct:description ?description } .
-  FILTER ( regex(?stat, ?status, "i") || !isLiteral(?status) ) .
+	?qid a ocds:Tender .
+	OPTIONAL { ?qid dct:title ?qtitle } .
+	OPTIONAL { ?qid dct:description ?qdescription } .
+	OPTIONAL { ?qid ocds:tenderStatus ?qstatus } .
+	OPTIONAL { ?contproc a ocds:ContractingProcess .
+    ?contproc ocds:hasTender ?qid .
+    ?contproc ocds:hasRelease ?release .
+    ?release tbfy:releasePublishedDate ?releasepublisheddate ;
+             tbfy:releaseURI ?releaseURI }.
+	FILTER ( ?status = xsd:string("_empty_") || regex( ?qstatus, ?status, "i") ) .
+  FILTER ( ?title = xsd:string("_empty_") || regex( ?qtitle, ?title, "i") ) .
+  FILTER ( ?description = xsd:string("_empty_") || regex( ?qdescription, ?description, "i") ) .
+	FILTER ( ?start_dt = xsd:string("_empty_") || ?releasepublisheddate > ?start_dt ) .
+	FILTER ( ?end_dt = xsd:string("_empty_") || ?releasepublisheddate < ?end_dt ) .
 }

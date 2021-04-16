@@ -1,11 +1,11 @@
 [
-#foreach( $tenders in $results )
+    #foreach( $tenders in $results )
         {
             #set( $control_coma = false )
-            #if ( $tenders.s )
-              #set ( $index = $tenders.s.lastIndexOf("/") )
+            #if ( $tenders.qid )
+              #set ( $index = $tenders.qid.lastIndexOf("/") )
               #set ( $index = $index + 1 )
-              #set ( $id = $tenders.s.substring($index, $tenders.s.length()) )
+              #set ( $id = $tenders.qid.substring($index, $tenders.qid.length()) )
               #if ( $control_coma )
                 ,
               #end
@@ -13,29 +13,38 @@
               #set( $control_coma = true )
             #end
 
-            #if ( $tenders.title )
+            #if ( $tenders.qtitle )
               #if ( $control_coma )
                 ,
               #end
-              "title" : "$tenders.title"
+              "title" : "$tenders.qtitle"
               #set( $control_coma = true )
             #end
 
-            #if ( $tenders.description )
+            #if ( $tenders.qdescription )
               #if ( $control_coma )
                 ,
               #end
-              "description" : "$tenders.description"
+              "description" : "$tenders.qdescription"
               #set( $control_coma = true )
             #end
 
-            #if ( $tenders.stat )
+            #if ( $tenders.qstatus )
               #if ( $control_coma )
                 ,
               #end
-              "status" : "$tenders.stat"
+              "status" : "$tenders.qstatus"
               #set( $control_coma = true )
             #end
+
+            #if ( $tenders.releasepublisheddate )
+              #if ( $control_coma )
+                ,
+              #end
+              "_creationDate" : "$tenders.releasepublisheddate"
+              #set( $control_coma = true )
+            #end
+
         }
          #if ( $velocityCount < ${results.size()} )
             ,

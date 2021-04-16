@@ -16,6 +16,7 @@ import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.core.VarExprList;
 import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.sparql.engine.http.QueryEngineHTTP;
 import org.apache.jena.sparql.syntax.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public class SparqlQuery {
         this.pattern = Pattern.compile(regex, Pattern.MULTILINE);
     }
 
-    public ResultSet execute(HttpClient client, String endpoint, Map<String, String[]> parameters, Integer maxSize, Integer offset) throws IOException {
+    public ResultSet execute(HttpClient client, String endpoint, String defaultGraph, Map<String, String[]> parameters, Integer maxSize, Integer offset) throws IOException {
 
         if (!queryPath.toFile().exists()) throw new IOException("Query Resource '" + queryPath + "' not found");
 
@@ -172,7 +173,8 @@ public class SparqlQuery {
                     if (!rvMap.containsKey(key) && !qs.getVariableParameters().containsKey(key) && !bindingVars.containsKey(key)){
                         LOG.info("Filtering Query Parameter: " + qvar);
                         // FILTER ( isNumeric(?param) = True || .. )
-                        qs.setParam(qvar,ResourceFactory.createTypedLiteral("1", XSDDatatype.XSDnonNegativeInteger));
+                        //qs.setParam(qvar,ResourceFactory.createTypedLiteral("1", XSDDatatype.XSDnonNegativeInteger));
+                        qs.setParam(qvar,ResourceFactory.createTypedLiteral("_empty_", XSDDatatype.XSDstring));
                     }
                 }
             }
@@ -182,7 +184,8 @@ public class SparqlQuery {
 
         LOG.info("Sparql-Endpoint: "+ endpoint);
         LOG.info("Query Params: " + qs.getVariableParameters());
-        QueryExecution exec = QueryExecutionFactory.sparqlService(endpoint, q , client);
+        QueryExecution exec = QueryExecutionFactory.sparqlService(endpoint, q , defaultGraph, client);
+        ((QueryEngineHTTP) exec).addDefaultGraph(defaultGraph);
         LOG.info("->:\n" + q);
         ResultSet results = exec.execSelect();
         return results;

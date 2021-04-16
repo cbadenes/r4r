@@ -11,7 +11,7 @@
 
 	<groupId>es.upm.oeg</groupId>
     <artifactId>r4r</artifactId>
-    <version>0.8</version>
+    <version>0.8.2</version>
     <packaging>jar</packaging>
     <name>Restful_API-4-RDF</name>
     <description>Automatic creation of Restful APIs from RDF Queries</description>
@@ -328,7 +328,7 @@
                     </imageTags>
                 </configuration>
             </plugin>
-            
+
         </plugins>
     </build>
 

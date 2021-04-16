@@ -1,11 +1,15 @@
 package es.upm.oeg.r4r.retriever;
 
+import com.github.jsonldjava.shaded.com.google.common.collect.Lists;
 import es.upm.oeg.r4r.data.Request;
+import org.apache.http.Header;
+import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.message.BasicHeader;
 import org.apache.jena.query.ResultSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -28,6 +33,9 @@ public class DataRetriever {
 
     @Value("#{environment['SPARQL_ENDPOINT']?:'${sparql.endpoint}'}")
     String sparqlEndpoint;
+
+    @Value("#{environment['GRAPH_IRI']?:'${graph.iri}'}")
+    String graphIRI;
 
     @Value("#{environment['SPARQL_SIZE']?:${sparql.size}}")
     Integer maxSize;
@@ -55,8 +63,12 @@ public class DataRetriever {
                 .setSocketTimeout(1000)
                 .build();
 
+        Header header = new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+        List<Header> headers = Lists.newArrayList(header);
+
         //Build the CloseableHttpClient object using the build() method.
         httpclient = clientbuilder.create()
+                .setDefaultHeaders(headers)
                 .disableAuthCaching()
                 .disableAutomaticRetries()
                 .disableConnectionState()
@@ -72,7 +84,7 @@ public class DataRetriever {
 
         try {
             SparqlQuery query   = sparqlQueryFactory.newQuery(Request.Type.GET, resources);
-            ResultSet result    = query.execute(httpclient, sparqlEndpoint, parameters, maxSize, offset);
+            ResultSet result    = query.execute(httpclient, sparqlEndpoint, graphIRI, parameters, maxSize, offset);
             return Optional.of(result);
         } catch (IOException e) {
             LOG.warn(e.getMessage());

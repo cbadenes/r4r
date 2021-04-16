@@ -8,6 +8,7 @@ WHERE {
   	OPTIONAL { ?qid dct:description ?qdescription } .
   	OPTIONAL { ?qid ocds:awardDate ?qdate } .
   	OPTIONAL { ?qid ocds:awardStatus ?qstatus } .
-    FILTER ( isNumeric(?end_dt) = True || STRDT( ?qdate , xsd:dateTime) < ?end_dt)
-   	FILTER ( isNumeric(?start_dt) = True || STRDT( ?qdate , xsd:dateTime) > ?start_dt)
+    #FILTER ( isNumeric(?end_dt) = True || STRDT( ?qdate , xsd:dateTime) < ?end_dt)
+    #FILTER ( isNumeric(?start_dt) = True || STRDT( ?qdate , xsd:dateTime) > ?start_dt)
+    FILTER (?start_dt = xsd:string("_empty_") || STRDT( ?qdate , xsd:dateTime) > ?start_dt)
 }
