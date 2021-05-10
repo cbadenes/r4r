@@ -546,4 +546,4 @@ Virtuoso will be available at: [http://localhost:8890](http://localhost:8890), a
 
 # Acknowledgments
 
-This research was supported by the European Union's Horizon 2020 research and innovation programme under grant agreement No 780247: [TheyBuyForYou](http://theybuyforyou.eu).
+This research was supported by the Spanish national project Datos 4.0, and by the European Union's Horizon 2020 research and innovation programme under grant agreement No 780247: [TheyBuyForYou](http://theybuyforyou.eu).
