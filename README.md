@@ -544,6 +544,11 @@ Then, run it by: `$ docker-compose up`
 
 Virtuoso will be available at: [http://localhost:8890](http://localhost:8890), and R4R will be listening at: [http://localhost:8080](http://localhost:8080)
 
+# How to Cite R4R
+We kindly ask that any published research making use of the R4R framework cites our paper listed below:
+
+Badenes-Olmedo, C., Espinoza-Arias, P., Corcho, O.: R4R: Template-based REST API Framework for RDF Knowledge Graphs. In: ISWC 2021: 20th International Semantic Web Conference. Demo Track. CEUR Workshop Proceedings.
+
 # Acknowledgments
 
 This research was supported by the Spanish national project Datos 4.0, and by the European Union's Horizon 2020 research and innovation programme under grant agreement No 780247: [TheyBuyForYou](http://theybuyforyou.eu).
