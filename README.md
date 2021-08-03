@@ -11,7 +11,7 @@ docker run -it --rm  \
     -p 8080:7777  \
     -v "$(pwd)/resources:/resources" \
     -e "SPARQL_ENDPOINT=https://dbpedia.org/sparql" \
-    -e "RESOURCE_NAMESPACE=https://dbpedia.org/resource/" \
+    -e "RESOURCE_NAMESPACE=http://dbpedia.org/resource/" \
     cbadenes/r4r:latest
 ```
 
