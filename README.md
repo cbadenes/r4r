@@ -312,11 +312,11 @@ PREFIX dbr: <http://dbpedia.org/resource/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-SELECT ?name ?gender ( ?starring AS ?uri )
+SELECT ?name ?birthDate ( ?starring AS ?uri )
 WHERE {
 	?id dbo:starring ?starring .
 	?starring foaf:name ?name .
-	?starring foaf:gender ?gender .
+	?starring dbo:birthDate ?birthDate .
 	OPTIONAL {?name rdfs:label ?string . FILTER (lang(?string) = 'en') }
 }
 ```
@@ -329,7 +329,7 @@ WHERE {
      {
         "uri" : "$person.uri",
         "name" : "$person.name",
-        "gender" : "$person.gender"
+        "birthDate" : "$person.birthDate"
      }
      #if ( $velocityCount < ${results.size()} )
         ,
