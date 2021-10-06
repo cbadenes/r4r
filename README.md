@@ -66,24 +66,27 @@ PREFIX res: <http://dbpedia.org/resource/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-SELECT ?m_uri ?m_name
+SELECT ?m_uri ?m_title ?m_director
 WHERE {
     ?m_uri rdf:type dbo:Film ;        
-        foaf:name ?m_name .
-    FILTER (lang(?m_name) = 'en') .    
+        dbp:title ?m_title ;
+        dbo:director ?director .
+    ?director dbp:name ?m_director .
+    FILTER (lang(?m_title) = 'en') .
+    FILTER (lang(?m_director) = 'en') .
 }
 ```
 
-R4R allows query results (e.g. `m_uri` and `m_name`) to be available in the json template.
+R4R allows query results (e.g. `m_title` and `m_director`) to be available in the json template.
 
 How? Easily, we can edit the file `get.json.vm` to use the sparql query responses using [Velocity Template Language](https://velocity.apache.org/engine/1.7/user-guide.html#velocity-template-language-vtl-an-introduction):
 
 ```
 [
-    #foreach( $movie in $results )
+    #foreach( $result in $results )
         {
-            "uri" : "$movie.m_uri",
-            "name" : "$movie.m_name"
+            "title" : "$result.m_title",
+            "director" : "$result.m_director"
          }
          #if ( $velocityCount < ${results.size()} )
             ,
@@ -92,7 +95,7 @@ How? Easily, we can edit the file `get.json.vm` to use the sparql query response
 ]
 ```
 
-A new variable named `results` is always available from this template. It has all values retrieved in the sparql query so can be iterated to create a list of resources. In our example, a list of movies is create with two fields: `uri` and `name`.
+A new variable named `results` is always available from this template. It has all values retrieved in the sparql query so can be iterated to create a list of resources. In our example, a list of movies is create with two fields: `title` and `director`.
 
 Now, a different json message is returned by doing the request [http://localhost:8080/movies](http://localhost:8080/movies)
 
@@ -105,9 +108,6 @@ If we want the list of only 5 films, it will be enough to request it this way: [
 and if we want the next page, enough with:  [http://localhost:8080/movies?size=5&offset=1](http://localhost:8080/movies?size=5&offset=1)
 
 When considering paginated queries it is necessary to set the `ORDER` option in the Sparql query.
-
-
-
 
 
 ## Optional fields
@@ -123,12 +123,15 @@ PREFIX res: <http://dbpedia.org/resource/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-SELECT ?m_uri ?m_name ?m_bonus
+SELECT ?m_uri ?m_title ?m_director ?m_budget
 WHERE {
-    ?m_uri rdf:type dbo:Film ;
-        foaf:name ?m_name .
-    FILTER (lang(?m_name) = 'en') .
-    OPTIONAL { ?m_uri dbp:bonusTracks ?m_bonus } .
+    ?m_uri rdf:type dbo:Film ;        
+        dbp:title ?m_title ;
+        dbo:director ?director .
+    ?director dbp:name ?m_director .
+    FILTER (lang(?m_title) = 'en') .
+    FILTER (lang(?m_director) = 'en') .
+    OPTIONAL { ?m_uri dbo:budget ?m_budget } .
 }
 ```
 
@@ -136,13 +139,13 @@ And we also load it into the JSON template (`resources/movies/get.json.vm`)to ha
 
 ```
 [
-    #foreach( $movie in $results )
+    #foreach( $result in $results )
         {
-            "uri" : "$movie.m_uri",
-            #if ($movie.m_bonus)
-             "bonus": "$movie.m_bonus",
+            "title" : "$result.m_title",
+            #if ($result.m_budget)
+             "budget": "$result.m_budget",
             #end
-            "name" : "$movie.m_name"
+            "director" : "$result.m_director"
          }
          #if ( $velocityCount < ${results.size()} )
             ,
@@ -151,7 +154,7 @@ And we also load it into the JSON template (`resources/movies/get.json.vm`)to ha
 ]
 ```
 
-The returned json only includes the `bonus` field when it has value by doing a request to [http://localhost:8080/movies](http://localhost:8080/movies).
+The returned json only includes the `budget` field when it has value by doing a request to [http://localhost:8080/movies](http://localhost:8080/movies).
 
 ## Dynamic Fields
 
@@ -163,17 +166,17 @@ It would be enough to add the necessary operations in the JSON generation templa
 
 ```
 [
-    #foreach( $movie in $results )
-        #set ( $index = $movie.m_uri.lastIndexOf("/") )
+    #foreach( $result in $results )
+        #set ( $index = $result.m_uri.lastIndexOf("/") )
         #set ( $index = $index + 1)
-        #set ( $id = $movie.m_uri.substring($index, $movie.m_uri.length()))
+        #set ( $id = $result.m_uri.substring($index, $result.m_uri.length()))
         {
-            "uri" : "$movie.m_uri",
-            "id"  : "$id",
-            #if ($movie.m_bonus)
-             "bonus": "$movie.m_bonus",
+            "id"  : "$id",        
+            "title" : "$result.m_title",
+            #if ($result.m_budget)
+             "budget": "$result.m_budget",
             #end
-            "name" : "$movie.m_name"
+            "director" : "$result.m_director"
          }
          #if ( $velocityCount < ${results.size()} )
             ,
@@ -187,7 +190,7 @@ These fields are available at: [http://localhost:8080/movies](http://localhost:8
 
 ## Query Parameters
 
-To filter by movie name, for example, just add the following condition to the sparql query (`resources/movies/get.sparql`):
+To filter by movie title, for example, just add the following condition to the sparql query (`resources/movies/get.sparql`):
 
 ```
 PREFIX dbo: <http://dbpedia.org/ontology/>
@@ -196,17 +199,21 @@ PREFIX res: <http://dbpedia.org/resource/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-SELECT ?m_uri ?m_name ?m_bonus
+SELECT ?m_uri ?m_title ?m_director ?m_budget
 WHERE {
-    ?m_uri rdf:type dbo:Film ;
-        foaf:name ?m_name .
-    FILTER (lang(?m_name) = 'en') .
-    OPTIONAL { ?m_uri dbp:bonusTracks ?m_bonus } .
-    FILTER ( isNumeric(?name) = True || regex(?m_name, ?name, "i") ) .
+    ?m_uri rdf:type dbo:Film ;        
+        dbp:title ?m_title ;
+        dbo:director ?director .
+    ?director dbp:name ?m_director .
+    FILTER (lang(?m_title) = 'en') .
+    FILTER (lang(?m_director) = 'en') .
+    OPTIONAL { ?m_uri dbo:budget ?m_budget } .
+    FILTER ( ?title = "_empty_" || regex(?m_title, ?title, "i") ) .
 }
+
 ```
 
-Now you can make requests like this: [http://localhost:8080/movies?name=Games](http://localhost:8080/movies?name=Games)
+Now you can make requests like this: [http://localhost:8080/movies?title=Games](http://localhost:8080/movies?title=Games)
 
 Be careful when naming variables, because if you use the same name in the query field as the variable returned in the sparql query an error will occur.
 
@@ -228,7 +235,7 @@ It contains a field name and an order modifier (either `+` or `-`). Each orderin
 
 Internally, R4R adds an ORDER BY clause to the sparql query with the closest property (by using the Levenhstein distance) to the one specified in the `sort` field.
 
-Now you can make requests like this: http://localhost:8080/movies?name=Games&sort=-name
+Now you can make requests like this: http://localhost:8080/movies?title=Games&sort=-name
 
 ## Query Path
 
@@ -243,15 +250,14 @@ PREFIX res: <http://dbpedia.org/resource/>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-SELECT ( ?id AS ?m_uri ) ?d_name ?m_country ?m_name ?m_abstract ?m_budget ?m_released
+SELECT ( ?id AS ?m_uri ) ?d_name ?m_country ?m_name ?m_budget ?m_released
 WHERE {
 	?id dbo:director ?d_uri .
 	?d_uri foaf:name ?d_name .
 	OPTIONAL {?id dbp:country ?m_country} .
 	OPTIONAL {?id dbo:budget ?m_budget} .
 	OPTIONAL {?id foaf:name ?m_name} .
-	OPTIONAL {?id dbp:released ?m_released} .
-	OPTIONAL {?id dbo:abstract ?m_abstract . FILTER (lang(?m_abstract) = 'en')} .
+	OPTIONAL {?id dbp:released ?m_released} .	
 }
 ```
 
@@ -261,16 +267,9 @@ And the `resources/movies/getById.json.vm` with this content:
 
 ```
 {
-    "uri" : "$m_uri",
-    "director" : "$d_name",
+    "title": "$m_name",
     #if ($m_country)
       "country" : "$m_country",
-    #end
-    #if ($m_wiki)
-      "wiki" : "$m_wiki",
-    #end
-    #if ($m_abstract)
-      "abstract" : "$m_abstract",
     #end
     #if ($m_budget)
       "budget" : "$m_budget",
@@ -278,9 +277,8 @@ And the `resources/movies/getById.json.vm` with this content:
     #if ($m_released)
       "released" : "$m_released",
     #end
-    "title": "$m_name"
+    "director" : "$d_name"
 }
-
 ```
 
 Now, you can get details about a movie by: [http://localhost:8080/movies/WarGames](http://localhost:8080/movies/WarGames)
@@ -325,11 +323,10 @@ WHERE {
 
 ```
 [
-    #foreach( $person in $results )
+    #foreach( $result in $results )
      {
-        "uri" : "$person.uri",
-        "name" : "$person.name",
-        "birthDate" : "$person.birthDate"
+        "name" : "$result.name",
+        "birthDate" : "$result.birthDate"
      }
      #if ( $velocityCount < ${results.size()} )
         ,
